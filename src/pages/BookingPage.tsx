@@ -139,7 +139,7 @@ const BookingPage = () => {
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-                <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+                <AvatarImage src={profile.avatar_url} alt={profile.full_name} className="object-cover" />
                 <AvatarFallback className="text-2xl">
                   {profile.full_name.charAt(0).toUpperCase()}
                 </AvatarFallback>
