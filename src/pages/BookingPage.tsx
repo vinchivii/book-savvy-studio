@@ -38,7 +38,7 @@ const BookingPage = () => {
       .from('profiles')
       .select('*')
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
 
     if (profileError || !profileData) {
       toast.error("Creator not found");
@@ -115,16 +115,31 @@ const BookingPage = () => {
     return <div className="min-h-screen flex items-center justify-center"><p>Creator not found</p></div>;
   }
 
+  const backgroundClass = profile.background_style || "min-h-screen bg-muted/30";
+
   return (
-    <div className="min-h-screen bg-muted/30 py-12 animate-fade-in">
+    <div className={`${backgroundClass} py-12 animate-fade-in`}>
+      {/* Banner Section */}
+      {profile.banner_url && (
+        <div className="container max-w-6xl mx-auto px-4 mb-8">
+          <div className="relative h-48 md:h-64 rounded-xl overflow-hidden shadow-xl">
+            <img
+              src={profile.banner_url}
+              alt="Creator Banner"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="container max-w-6xl mx-auto px-4">
         <div className="grid md:grid-cols-[1fr_2fr] gap-8">
           {/* Left Column - Creator Profile Card */}
           <div className="space-y-6 animate-slide-in-left">
-            <Card className="sticky top-8 shadow-lg hover:shadow-xl transition-shadow">
+            <Card className={`sticky top-8 shadow-lg hover:shadow-xl transition-shadow ${profile.banner_url ? '-mt-16 relative z-10' : ''}`}>
               <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
-                  <Avatar className="h-24 w-24">
+                  <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
                     <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
                     <AvatarFallback className="text-2xl">
                       {profile.full_name.charAt(0).toUpperCase()}

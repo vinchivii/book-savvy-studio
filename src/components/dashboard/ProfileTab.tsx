@@ -22,6 +22,9 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
     business_name: "",
     bio: "",
     avatar_url: "",
+    slug: "",
+    banner_url: "",
+    background_style: "",
   });
 
   useEffect(() => {
@@ -44,6 +47,9 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
           business_name: data.business_name || "",
           bio: data.bio || "",
           avatar_url: data.avatar_url || "",
+          slug: data.slug || "",
+          banner_url: data.banner_url || "",
+          background_style: data.background_style || "",
         });
       }
     } catch (error) {
@@ -72,6 +78,8 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
           business_name: formData.business_name.trim() || null,
           bio: formData.bio.trim() || null,
           avatar_url: formData.avatar_url.trim() || null,
+          banner_url: formData.banner_url.trim() || null,
+          background_style: formData.background_style.trim() || null,
         })
         .eq("id", userId);
 
@@ -196,6 +204,48 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
               placeholder="Tell clients about yourself and your services..."
               rows={4}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slug">Booking URL</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="slug"
+                value={`${window.location.origin}/book/${formData.slug}`}
+                readOnly
+                className="bg-muted"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              This is your unique booking page URL (cannot be changed)
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="banner_url">Banner Image URL</Label>
+            <Input
+              id="banner_url"
+              type="url"
+              value={formData.banner_url}
+              onChange={(e) => handleChange("banner_url", e.target.value)}
+              placeholder="https://example.com/your-banner.jpg"
+            />
+            <p className="text-sm text-muted-foreground">
+              Custom banner image for your booking page
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="background_style">Background Style</Label>
+            <Input
+              id="background_style"
+              value={formData.background_style}
+              onChange={(e) => handleChange("background_style", e.target.value)}
+              placeholder="bg-gradient-to-br from-primary/5 to-accent/5"
+            />
+            <p className="text-sm text-muted-foreground">
+              Custom Tailwind CSS classes for your booking page background
+            </p>
           </div>
 
           <div className="space-y-4">

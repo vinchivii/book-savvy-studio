@@ -74,6 +74,8 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          background_style: string | null
+          banner_url: string | null
           bio: string | null
           business_name: string | null
           created_at: string | null
@@ -84,6 +86,8 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          background_style?: string | null
+          banner_url?: string | null
           bio?: string | null
           business_name?: string | null
           created_at?: string | null
@@ -94,6 +98,8 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          background_style?: string | null
+          banner_url?: string | null
           bio?: string | null
           business_name?: string | null
           created_at?: string | null
