@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogOut, Calendar, Users, Briefcase, Link as LinkIcon, UserCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 import ServicesTab from "@/components/dashboard/ServicesTab";
 import BookingsTab from "@/components/dashboard/BookingsTab";
 import ClientsTab from "@/components/dashboard/ClientsTab";
@@ -17,6 +18,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Check auth and fetch profile
@@ -91,7 +93,7 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {profile?.slug && (
+            {profile?.slug && !isMobile && (
               <Button onClick={copyBookingLink} variant="outline" size="sm">
                 <LinkIcon className="mr-2 h-4 w-4" />
                 Copy Booking Link
@@ -107,23 +109,33 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+        {/* Mobile-only Copy Booking Link Button */}
+        {isMobile && profile?.slug && (
+          <div className="mb-6">
+            <Button onClick={copyBookingLink} className="w-full" size="lg">
+              <LinkIcon className="mr-2 h-5 w-5" />
+              Copy Booking Link
+            </Button>
+          </div>
+        )}
+        
         <Tabs defaultValue="services" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="services">
               <Briefcase className="mr-2 h-4 w-4" />
-              Services
+              {!isMobile && "Services"}
             </TabsTrigger>
             <TabsTrigger value="bookings">
               <Calendar className="mr-2 h-4 w-4" />
-              Bookings
+              {!isMobile && "Bookings"}
             </TabsTrigger>
             <TabsTrigger value="clients">
               <Users className="mr-2 h-4 w-4" />
-              Clients
+              {!isMobile && "Clients"}
             </TabsTrigger>
             <TabsTrigger value="profile">
               <UserCircle className="mr-2 h-4 w-4" />
-              Profile
+              {!isMobile && "Profile"}
             </TabsTrigger>
           </TabsList>
 
