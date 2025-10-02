@@ -5,11 +5,12 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Calendar, Users, Briefcase, Link as LinkIcon } from "lucide-react";
+import { LogOut, Calendar, Users, Briefcase, Link as LinkIcon, UserCircle } from "lucide-react";
 import { toast } from "sonner";
 import ServicesTab from "@/components/dashboard/ServicesTab";
 import BookingsTab from "@/components/dashboard/BookingsTab";
 import ClientsTab from "@/components/dashboard/ClientsTab";
+import ProfileTab from "@/components/dashboard/ProfileTab";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -107,7 +108,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="services" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="services">
               <Briefcase className="mr-2 h-4 w-4" />
               Services
@@ -119,6 +120,10 @@ const Dashboard = () => {
             <TabsTrigger value="clients">
               <Users className="mr-2 h-4 w-4" />
               Clients
+            </TabsTrigger>
+            <TabsTrigger value="profile">
+              <UserCircle className="mr-2 h-4 w-4" />
+              Profile
             </TabsTrigger>
           </TabsList>
 
@@ -132,6 +137,10 @@ const Dashboard = () => {
 
           <TabsContent value="clients">
             <ClientsTab userId={user?.id || ""} />
+          </TabsContent>
+
+          <TabsContent value="profile">
+            <ProfileTab userId={user?.id || ""} />
           </TabsContent>
         </Tabs>
       </div>
