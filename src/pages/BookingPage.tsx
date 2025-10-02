@@ -118,51 +118,53 @@ const BookingPage = () => {
   const themeClass = profile.background_style === 'dark' ? 'dark' : profile.background_style === 'light' ? 'light' : '';
 
   return (
-    <div className={`${themeClass} min-h-screen bg-background text-foreground py-12 animate-fade-in`}>
-      {/* Banner Section */}
-      {profile.banner_url && (
-        <div className="container max-w-6xl mx-auto px-4 mb-8">
-          <div className="relative h-48 md:h-64 rounded-xl overflow-hidden shadow-xl">
-            <img
-              src={profile.banner_url}
-              alt="Creator Banner"
-              className="w-full h-full object-cover"
-            />
+    <div className={`${themeClass} min-h-screen bg-background text-foreground flex flex-col items-center py-12 animate-fade-in`}>
+      {/* Block 1: Banner and Profile Info */}
+      <div className="w-full max-w-4xl mx-auto px-4 mb-12">
+        {/* Banner Section */}
+        {profile.banner_url && (
+          <div className="mb-8">
+            <div className="relative h-48 md:h-64 rounded-xl overflow-hidden shadow-xl">
+              <img
+                src={profile.banner_url}
+                alt="Creator Banner"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="container max-w-6xl mx-auto px-4">
-        <div className="grid md:grid-cols-[1fr_2fr] gap-8">
-          {/* Left Column - Creator Profile Card */}
-          <div className="space-y-6 animate-slide-in-left">
-            <Card className={`sticky top-8 shadow-lg hover:shadow-xl transition-shadow ${profile.banner_url ? '-mt-16 relative z-10' : ''}`}>
-              <CardHeader className="text-center">
-                <div className="flex justify-center mb-4">
-                  <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-                    <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
-                    <AvatarFallback className="text-2xl">
-                      {profile.full_name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                <CardTitle className="text-2xl">{profile.full_name}</CardTitle>
-                {profile.business_name && (
-                  <CardDescription className="text-lg font-medium">
-                    {profile.business_name}
-                  </CardDescription>
-                )}
-                {profile.bio && (
-                  <CardDescription className="text-left mt-4">
-                    {profile.bio}
-                  </CardDescription>
-                )}
-              </CardHeader>
-            </Card>
-          </div>
+        {/* Profile Info Card */}
+        <Card className={`max-w-xl mx-auto shadow-lg hover:shadow-xl transition-shadow animate-fade-in ${profile.banner_url ? '-mt-16 relative z-10' : ''}`}>
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+                <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+                <AvatarFallback className="text-2xl">
+                  {profile.full_name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <CardTitle className="text-2xl">{profile.full_name}</CardTitle>
+            {profile.business_name && (
+              <CardDescription className="text-lg font-medium">
+                {profile.business_name}
+              </CardDescription>
+            )}
+            {profile.bio && (
+              <CardDescription className="text-left mt-4">
+                {profile.bio}
+              </CardDescription>
+            )}
+          </CardHeader>
+        </Card>
+      </div>
 
-          {/* Right Column - Services and Booking Form */}
-          <div className="space-y-8 animate-slide-in-right">
+      {/* Block 2: Services and Booking Flow */}
+      <div className="w-full max-w-6xl mx-auto px-4">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Services Column */}
+          <div className="space-y-8 animate-slide-in-left">
             <div>
               <h2 className="text-3xl font-bold mb-2">Available Services</h2>
               <p className="text-muted-foreground mb-6">Select a service to book an appointment</p>
@@ -187,7 +189,10 @@ const BookingPage = () => {
                 ))}
               </div>
             </div>
+          </div>
 
+          {/* Booking Flow Column */}
+          <div className="space-y-8 animate-slide-in-right">
             {selectedService && bookingFlowState === 'choice' && (
               <Card className="animate-scale-in shadow-lg">
                 <CardHeader>
