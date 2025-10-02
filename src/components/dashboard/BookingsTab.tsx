@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Calendar, Clock, Mail, Phone, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
+import { sendBookingConfirmationEmail } from "@/lib/emails";
 
 interface Booking {
   id: string;
@@ -54,6 +55,9 @@ const BookingsTab = ({ userId }: { userId: string }) => {
   };
 
   const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
+    // Get the booking details before updating
+    const booking = bookings.find(b => b.id === bookingId);
+    
     const { error } = await supabase
       .from('bookings')
       .update({ status: newStatus })
@@ -62,6 +66,17 @@ const BookingsTab = ({ userId }: { userId: string }) => {
     if (error) {
       toast.error("Failed to update booking");
     } else {
+      // Send email notification to client about status change
+      if (booking && (newStatus === 'accepted' || newStatus === 'declined')) {
+        await sendBookingConfirmationEmail(
+          booking.client_email,
+          booking.client_name,
+          booking.services.title,
+          format(new Date(booking.booking_date), "PPP 'at' p"),
+          newStatus as 'accepted' | 'declined'
+        );
+      }
+      
       toast.success(`Booking ${newStatus}`);
       fetchBookings();
     }

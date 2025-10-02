@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Calendar, Clock, DollarSign, Loader2 } from "lucide-react";
+import { sendBookingConfirmationEmail } from "@/lib/emails";
 
 const BookingPage = () => {
   const { slug } = useParams();
@@ -82,6 +83,15 @@ const BookingPage = () => {
       toast.error("Failed to create booking");
       console.error(error);
     } else {
+      // Send email notification to client
+      await sendBookingConfirmationEmail(
+        formData.email,
+        formData.name,
+        selectedService.title,
+        bookingDateTime.toLocaleString(),
+        'pending'
+      );
+      
       toast.success("Booking request sent! You'll hear back soon.");
       setFormData({ name: "", email: "", phone: "", date: "", time: "", notes: "" });
       setSelectedService(null);
