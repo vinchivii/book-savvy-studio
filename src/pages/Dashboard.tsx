@@ -87,7 +87,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 animate-fade-in">
+    <div className="min-h-screen gradient-subtle animate-fade-in">
       {/* Header */}
       <header className="bg-card border-b shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
