@@ -120,8 +120,8 @@ const BookingsTab = ({ userId }: { userId: string }) => {
         </Card>
       ) : (
         <div className="space-y-4">
-          {bookings.map((booking) => (
-            <Card key={booking.id}>
+          {bookings.map((booking, index) => (
+            <Card key={booking.id} className="hover-lift animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">

@@ -82,9 +82,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 animate-fade-in">
       {/* Header */}
-      <header className="bg-card border-b">
+      <header className="bg-card border-b shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">BrandBook</h1>
@@ -111,8 +111,8 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Mobile-only Copy Booking Link Button */}
         {isMobile && profile?.slug && (
-          <div className="mb-6">
-            <Button onClick={copyBookingLink} className="w-full" size="lg">
+          <div className="mb-6 animate-scale-in">
+            <Button onClick={copyBookingLink} className="w-full shadow-lg hover:shadow-xl" size="lg">
               <LinkIcon className="mr-2 h-5 w-5" />
               Copy Booking Link
             </Button>

@@ -111,8 +111,8 @@ const ClientsTab = ({ userId }: { userId: string }) => {
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
-          {filteredClients.map((client) => (
-            <Card key={client.client_email}>
+          {filteredClients.map((client, index) => (
+            <Card key={client.client_email} className="hover-lift animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
               <CardHeader>
                 <CardTitle className="text-lg">{client.client_name}</CardTitle>
                 <CardDescription className="space-y-1">

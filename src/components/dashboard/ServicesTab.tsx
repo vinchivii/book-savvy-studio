@@ -221,8 +221,8 @@ const ServicesTab = ({ userId }: { userId: string }) => {
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
-          {services.map((service) => (
-            <Card key={service.id}>
+          {services.map((service, index) => (
+            <Card key={service.id} className="hover-lift animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>

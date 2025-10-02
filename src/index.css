@@ -41,12 +41,16 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(263 70% 50%), hsl(250 60% 60%));
     --gradient-card: linear-gradient(to bottom, hsl(0 0% 100%), hsl(240 5% 98%));
+    --gradient-subtle: linear-gradient(180deg, hsl(263 70% 97%), hsl(0 0% 100%));
+    --gradient-accent: linear-gradient(135deg, hsl(263 70% 50%), hsl(14 100% 65%));
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(240 10% 15% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(240 10% 15% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(240 10% 15% / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(240 10% 15% / 0.1), 0 2px 4px -1px hsl(240 10% 15% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(240 10% 15% / 0.1), 0 4px 6px -2px hsl(240 10% 15% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(240 10% 15% / 0.1), 0 10px 10px -5px hsl(240 10% 15% / 0.04);
     --shadow-glow: 0 0 30px hsl(263 70% 50% / 0.3);
+    --shadow-glow-sm: 0 0 20px hsl(263 70% 50% / 0.2);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -90,12 +94,16 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(263 70% 40%), hsl(250 60% 50%));
     --gradient-card: linear-gradient(to bottom, hsl(240 10% 12%), hsl(240 10% 15%));
+    --gradient-subtle: linear-gradient(180deg, hsl(240 10% 12%), hsl(240 10% 10%));
+    --gradient-accent: linear-gradient(135deg, hsl(263 70% 50%), hsl(14 100% 70%));
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.5);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -1px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.5), 0 4px 6px -2px hsl(0 0% 0% / 0.4);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.6), 0 10px 10px -5px hsl(0 0% 0% / 0.5);
     --shadow-glow: 0 0 30px hsl(263 70% 50% / 0.4);
+    --shadow-glow-sm: 0 0 20px hsl(263 70% 50% / 0.3);
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -115,5 +123,39 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .shadow-glow-sm {
+    box-shadow: var(--shadow-glow-sm);
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+  
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-glow;
   }
 }

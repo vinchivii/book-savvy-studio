@@ -116,12 +116,12 @@ const BookingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 py-12">
+    <div className="min-h-screen bg-muted/30 py-12 animate-fade-in">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="grid md:grid-cols-[1fr_2fr] gap-8">
           {/* Left Column - Creator Profile Card */}
-          <div className="space-y-6">
-            <Card className="sticky top-8">
+          <div className="space-y-6 animate-slide-in-left">
+            <Card className="sticky top-8 shadow-lg hover:shadow-xl transition-shadow">
               <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
                   <Avatar className="h-24 w-24">
@@ -147,17 +147,18 @@ const BookingPage = () => {
           </div>
 
           {/* Right Column - Services and Booking Form */}
-          <div className="space-y-8">
+          <div className="space-y-8 animate-slide-in-right">
             <div>
               <h2 className="text-3xl font-bold mb-2">Available Services</h2>
               <p className="text-muted-foreground mb-6">Select a service to book an appointment</p>
               
               <div className="grid gap-4">
-                {services.map((service) => (
+                {services.map((service, index) => (
                   <Card 
                     key={service.id}
-                    className={`cursor-pointer transition-all ${selectedService?.id === service.id ? 'ring-2 ring-primary' : ''}`}
+                    className={`cursor-pointer transition-all hover-lift ${selectedService?.id === service.id ? 'ring-2 ring-primary shadow-glow-sm' : 'hover:shadow-md'}`}
                     onClick={() => handleServiceSelect(service)}
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <CardHeader>
                       <CardTitle>{service.title}</CardTitle>
@@ -173,7 +174,7 @@ const BookingPage = () => {
             </div>
 
             {selectedService && bookingFlowState === 'choice' && (
-              <Card>
+              <Card className="animate-scale-in shadow-lg">
                 <CardHeader>
                   <CardTitle>How would you like to book?</CardTitle>
                   <CardDescription>Choose your preferred booking method</CardDescription>
@@ -215,7 +216,7 @@ const BookingPage = () => {
             )}
 
             {selectedService && bookingFlowState === 'guest' && (
-              <Card>
+              <Card className="animate-scale-in shadow-lg">
                 <CardHeader>
                   <CardTitle>Book {selectedService.title}</CardTitle>
                   <CardDescription>Fill in your details to request a booking</CardDescription>

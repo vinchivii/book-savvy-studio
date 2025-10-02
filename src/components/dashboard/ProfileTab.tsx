@@ -97,7 +97,7 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
   }
 
   return (
-    <Card>
+    <Card className="animate-fade-up shadow-lg">
       <CardHeader>
         <CardTitle>Profile Settings</CardTitle>
         <CardDescription>

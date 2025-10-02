@@ -63,16 +63,19 @@ const Index = () => {
               icon={<Calendar className="w-10 h-10 text-primary" />}
               title="Smart Booking"
               description="Clients book directly through your custom link. Set your services, pricing, and availability in minutes."
+              delay="0.1s"
             />
             <FeatureCard
               icon={<Users className="w-10 h-10 text-primary" />}
               title="Client Management"
               description="Keep track of all your clients and their booking history in one organized dashboard."
+              delay="0.2s"
             />
             <FeatureCard
               icon={<Sparkles className="w-10 h-10 text-primary" />}
               title="Auto Notifications"
               description="Automatic email confirmations for you and your clients whenever a booking is made or updated."
+              delay="0.3s"
             />
           </div>
         </div>
@@ -138,13 +141,18 @@ const Index = () => {
 const FeatureCard = ({ 
   icon, 
   title, 
-  description 
+  description,
+  delay = "0s"
 }: { 
   icon: React.ReactNode; 
   title: string; 
-  description: string; 
+  description: string;
+  delay?: string;
 }) => (
-  <div className="bg-card rounded-xl p-8 shadow-md hover:shadow-lg transition-all border">
+  <div 
+    className="bg-card rounded-xl p-8 shadow-md hover-lift border animate-fade-up"
+    style={{ animationDelay: delay }}
+  >
     <div className="mb-4">{icon}</div>
     <h3 className="text-xl font-bold mb-3">{title}</h3>
     <p className="text-muted-foreground">{description}</p>
@@ -160,9 +168,9 @@ const StepCard = ({
   title: string; 
   description: string; 
 }) => (
-  <div className="flex gap-6 items-start">
-    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold">
-      {number}
+  <div className="flex gap-6 items-start animate-fade-in" style={{ animationDelay: `${(parseInt(number) - 1) * 0.2}s` }}>
+    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-glow-sm">
+      <CheckCircle2 className="w-6 h-6" />
     </div>
     <div>
       <h3 className="text-2xl font-bold mb-2">{title}</h3>
