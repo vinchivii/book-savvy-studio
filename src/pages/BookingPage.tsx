@@ -135,7 +135,7 @@ const BookingPage = () => {
         )}
 
         {/* Profile Info Card */}
-        <Card className={`max-w-xl mx-auto shadow-lg hover:shadow-xl transition-shadow animate-fade-in ${profile.banner_url ? '-mt-16 relative z-10' : ''}`}>
+        <Card className="max-w-xl mx-auto shadow-lg hover:shadow-xl transition-shadow animate-fade-in">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
