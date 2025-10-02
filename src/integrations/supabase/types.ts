@@ -118,6 +118,7 @@ export type Database = {
           description: string | null
           duration: number
           id: string
+          media_url: string | null
           price: number
           title: string
           updated_at: string | null
@@ -129,6 +130,7 @@ export type Database = {
           description?: string | null
           duration: number
           id?: string
+          media_url?: string | null
           price: number
           title: string
           updated_at?: string | null
@@ -140,6 +142,7 @@ export type Database = {
           description?: string | null
           duration?: number
           id?: string
+          media_url?: string | null
           price?: number
           title?: string
           updated_at?: string | null
