@@ -376,17 +376,6 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
               </SelectContent>
             </Select>
 
-            {formData.background_style && (
-              <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">Preview:</Label>
-                <div className={`${formData.background_style} h-24 rounded-lg border-2 border-border flex items-center justify-center`}>
-                  <p className="text-sm font-medium px-4 py-2 bg-background/80 rounded">
-                    Background Preview
-                  </p>
-                </div>
-              </div>
-            )}
-            
             <p className="text-sm text-muted-foreground">
               Choose how your booking page background appears to clients
             </p>
