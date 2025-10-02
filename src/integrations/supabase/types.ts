@@ -24,6 +24,7 @@ export type Database = {
           creator_id: string
           id: string
           notes: string | null
+          payment_intent_id: string | null
           service_id: string
           status: string
           updated_at: string | null
@@ -37,6 +38,7 @@ export type Database = {
           creator_id: string
           id?: string
           notes?: string | null
+          payment_intent_id?: string | null
           service_id: string
           status?: string
           updated_at?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           creator_id?: string
           id?: string
           notes?: string | null
+          payment_intent_id?: string | null
           service_id?: string
           status?: string
           updated_at?: string | null

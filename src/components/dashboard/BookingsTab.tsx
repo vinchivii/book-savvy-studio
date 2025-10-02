@@ -16,6 +16,7 @@ interface Booking {
   booking_date: string;
   status: string;
   notes: string | null;
+  payment_intent_id: string | null;
   services: {
     title: string;
     price: number;
@@ -161,8 +162,22 @@ const BookingsTab = ({ userId }: { userId: string }) => {
                   <div>
                     <p className="font-medium mb-2">Service Details</p>
                     <div className="space-y-1 text-muted-foreground">
-                      <p>Price: ${booking.services.price.toFixed(2)}</p>
+                      <div className="flex items-center gap-2">
+                        <p>Price: ${booking.services.price.toFixed(2)}</p>
+                        {/* Mock isPaid for MVP - in production this would be based on payment_intent_id status */}
+                        {(() => {
+                          const isPaid = false; // MVP: always unpaid until Stripe is integrated
+                          return isPaid ? (
+                            <Badge variant="default">Payment Captured</Badge>
+                          ) : (
+                            <Badge variant="secondary">Unpaid</Badge>
+                          );
+                        })()}
+                      </div>
                       <p>Duration: {booking.services.duration} min</p>
+                      {booking.payment_intent_id && (
+                        <p className="text-xs">Payment ID: {booking.payment_intent_id}</p>
+                      )}
                     </div>
                   </div>
                 </div>

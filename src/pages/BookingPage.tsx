@@ -271,6 +271,15 @@ const BookingPage = () => {
                       <Label>Additional Notes</Label>
                       <Textarea value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows={3} />
                     </div>
+                    
+                    {/* Payment/Confirmation Section */}
+                    <div className="pt-4 border-t space-y-2">
+                      <h4 className="font-medium text-sm">Payment/Confirmation</h4>
+                      <p className="text-sm text-muted-foreground">
+                        By clicking "Request Booking", you agree to pay the service fee of ${selectedService.price.toFixed(2)}.
+                      </p>
+                    </div>
+                    
                     <Button type="submit" className="w-full" disabled={submitting}>
                       {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Request Booking
