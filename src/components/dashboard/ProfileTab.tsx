@@ -5,9 +5,18 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const BACKGROUND_STYLES = [
+  { label: "Light Gray", value: "min-h-screen bg-muted/30" },
+  { label: "Clean White", value: "min-h-screen bg-background" },
+  { label: "Subtle Gradient", value: "min-h-screen bg-gradient-to-br from-primary/5 to-accent/5" },
+  { label: "Dark Mode", value: "min-h-screen bg-slate-900 dark:bg-slate-950" },
+  { label: "Warm Gradient", value: "min-h-screen bg-gradient-to-br from-orange-50 to-pink-50 dark:from-orange-950 dark:to-pink-950" },
+];
 
 interface ProfileTabProps {
   userId: string;
@@ -17,6 +26,7 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
     business_name: "",
@@ -154,6 +164,60 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
     setFormData(prev => ({ ...prev, avatar_url: "" }));
   };
 
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    setUploadingBanner(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}/banner-${Date.now()}.${fileExt}`;
+
+      // Delete old banner if exists
+      if (formData.banner_url) {
+        const oldPath = formData.banner_url.split('/').slice(-2).join('/');
+        if (oldPath.includes(userId)) {
+          await supabase.storage.from('banners').remove([oldPath]);
+        }
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from('banners')
+        .upload(fileName, file, {
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('banners')
+        .getPublicUrl(fileName);
+
+      setFormData(prev => ({ ...prev, banner_url: publicUrl }));
+      toast.success("Banner uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading banner:", error);
+      toast.error("Failed to upload banner");
+    } finally {
+      setUploadingBanner(false);
+    }
+  };
+
+  const removeBanner = () => {
+    setFormData(prev => ({ ...prev, banner_url: "" }));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -221,30 +285,110 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="banner_url">Banner Image URL</Label>
-            <Input
-              id="banner_url"
-              type="url"
-              value={formData.banner_url}
-              onChange={(e) => handleChange("banner_url", e.target.value)}
-              placeholder="https://example.com/your-banner.jpg"
-            />
-            <p className="text-sm text-muted-foreground">
-              Custom banner image for your booking page
-            </p>
+          {/* Banner Upload Section */}
+          <div className="space-y-4">
+            <Label>Banner Image</Label>
+            
+            <div className="space-y-4">
+              {formData.banner_url && (
+                <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                  <img 
+                    src={formData.banner_url} 
+                    alt="Banner preview" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('banner-upload')?.click()}
+                  disabled={uploadingBanner}
+                  className="flex-1"
+                >
+                  {uploadingBanner ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      Upload Banner
+                    </>
+                  )}
+                </Button>
+                
+                {formData.banner_url && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={removeBanner}
+                    disabled={uploadingBanner}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              
+              <input
+                id="banner-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleBannerUpload}
+                className="hidden"
+              />
+              
+              <p className="text-sm text-muted-foreground">
+                Upload an image for your booking page banner (max 5MB)
+              </p>
+              
+              <Input
+                type="url"
+                value={formData.banner_url}
+                onChange={(e) => handleChange("banner_url", e.target.value)}
+                placeholder="Or paste banner URL here"
+                className="mt-2"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
+          {/* Background Style Selector */}
+          <div className="space-y-4">
             <Label htmlFor="background_style">Background Style</Label>
-            <Input
-              id="background_style"
-              value={formData.background_style}
-              onChange={(e) => handleChange("background_style", e.target.value)}
-              placeholder="bg-gradient-to-br from-primary/5 to-accent/5"
-            />
+            
+            <Select 
+              value={formData.background_style} 
+              onValueChange={(value) => handleChange("background_style", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a background style" />
+              </SelectTrigger>
+              <SelectContent className="z-50 bg-popover">
+                {BACKGROUND_STYLES.map((style) => (
+                  <SelectItem key={style.value} value={style.value}>
+                    {style.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {formData.background_style && (
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">Preview:</Label>
+                <div className={`${formData.background_style} h-24 rounded-lg border-2 border-border flex items-center justify-center`}>
+                  <p className="text-sm font-medium px-4 py-2 bg-background/80 rounded">
+                    Background Preview
+                  </p>
+                </div>
+              </div>
+            )}
+            
             <p className="text-sm text-muted-foreground">
-              Custom Tailwind CSS classes for your booking page background
+              Choose how your booking page background appears to clients
             </p>
           </div>
 
