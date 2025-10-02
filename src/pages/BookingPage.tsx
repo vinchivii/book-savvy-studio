@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ const BookingPage = () => {
   const [selectedService, setSelectedService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [bookingFlowState, setBookingFlowState] = useState<'choice' | 'guest'>('choice');
   
   const [formData, setFormData] = useState({
     name: "",
@@ -95,9 +96,15 @@ const BookingPage = () => {
       toast.success("Booking request sent! You'll hear back soon.");
       setFormData({ name: "", email: "", phone: "", date: "", time: "", notes: "" });
       setSelectedService(null);
+      setBookingFlowState('choice'); // Reset flow state
     }
     
     setSubmitting(false);
+  };
+
+  const handleServiceSelect = (service: any) => {
+    setSelectedService(service);
+    setBookingFlowState('choice'); // Reset to choice when selecting a service
   };
 
   if (loading) {
@@ -150,7 +157,7 @@ const BookingPage = () => {
                   <Card 
                     key={service.id}
                     className={`cursor-pointer transition-all ${selectedService?.id === service.id ? 'ring-2 ring-primary' : ''}`}
-                    onClick={() => setSelectedService(service)}
+                    onClick={() => handleServiceSelect(service)}
                   >
                     <CardHeader>
                       <CardTitle>{service.title}</CardTitle>
@@ -165,7 +172,49 @@ const BookingPage = () => {
               </div>
             </div>
 
-            {selectedService && (
+            {selectedService && bookingFlowState === 'choice' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>How would you like to book?</CardTitle>
+                  <CardDescription>Choose your preferred booking method</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Button 
+                      onClick={() => setBookingFlowState('guest')} 
+                      className="w-full text-lg"
+                      size="lg"
+                    >
+                      Continue as Guest
+                    </Button>
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">
+                          Or
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                      <p>Already have an account?</p>
+                      <div className="flex items-center gap-2">
+                        <Link to="/auth">
+                          <Button variant="outline" size="sm">Log In</Button>
+                        </Link>
+                        <span>or</span>
+                        <Link to="/auth">
+                          <Button variant="outline" size="sm">Sign Up</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {selectedService && bookingFlowState === 'guest' && (
               <Card>
                 <CardHeader>
                   <CardTitle>Book {selectedService.title}</CardTitle>
