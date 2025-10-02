@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ProfileTabProps {
   userId: string;
@@ -15,6 +16,7 @@ interface ProfileTabProps {
 const ProfileTab = ({ userId }: ProfileTabProps) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
     business_name: "",
@@ -88,6 +90,62 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+      // Delete old avatar if exists
+      if (formData.avatar_url) {
+        const oldPath = formData.avatar_url.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('avatars').remove([`${userId}/${oldPath}`]);
+        }
+      }
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
+      toast.success("Profile picture uploaded successfully");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("Failed to upload profile picture");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeAvatar = () => {
+    setFormData(prev => ({ ...prev, avatar_url: "" }));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -140,18 +198,72 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="avatar_url">Avatar URL</Label>
-            <Input
-              id="avatar_url"
-              type="url"
-              value={formData.avatar_url}
-              onChange={(e) => handleChange("avatar_url", e.target.value)}
-              placeholder="https://example.com/your-photo.jpg"
-            />
-            <p className="text-sm text-muted-foreground">
-              Enter the URL of your profile picture
-            </p>
+          <div className="space-y-4">
+            <Label>Profile Picture</Label>
+            
+            <div className="flex items-center gap-6">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={formData.avatar_url} alt={formData.full_name} />
+                <AvatarFallback className="text-2xl">
+                  {formData.full_name ? formData.full_name.charAt(0).toUpperCase() : 'U'}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 space-y-3">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('avatar-upload')?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Image
+                      </>
+                    )}
+                  </Button>
+                  
+                  {formData.avatar_url && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={removeAvatar}
+                      disabled={uploading}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                
+                <p className="text-sm text-muted-foreground">
+                  Upload an image or enter a URL below (max 5MB)
+                </p>
+                
+                <Input
+                  type="url"
+                  value={formData.avatar_url}
+                  onChange={(e) => handleChange("avatar_url", e.target.value)}
+                  placeholder="Or paste image URL here"
+                  className="mt-2"
+                />
+              </div>
+            </div>
           </div>
 
           <Button type="submit" disabled={saving} className="w-full">
