@@ -5,7 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Calendar, Users, Briefcase, Link as LinkIcon, UserCircle } from "lucide-react";
+import { LogOut, Calendar, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ServicesTab from "@/components/dashboard/ServicesTab";
@@ -73,6 +73,11 @@ const Dashboard = () => {
     toast.success("Booking link copied!");
   };
 
+  const previewBookingPage = () => {
+    const link = `${window.location.origin}/book/${profile?.slug}`;
+    window.open(link, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -94,10 +99,16 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-2">
             {profile?.slug && !isMobile && (
-              <Button onClick={copyBookingLink} variant="outline" size="sm">
-                <LinkIcon className="mr-2 h-4 w-4" />
-                Copy Booking Link
-              </Button>
+              <>
+                <Button onClick={previewBookingPage} variant="outline" size="sm">
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Preview
+                </Button>
+                <Button onClick={copyBookingLink} variant="outline" size="sm">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Copy Link
+                </Button>
+              </>
             )}
             <Button onClick={handleLogout} variant="outline" size="sm">
               <LogOut className="mr-2 h-4 w-4" />
@@ -109,9 +120,13 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        {/* Mobile-only Copy Booking Link Button */}
+        {/* Mobile-only Booking Link Buttons */}
         {isMobile && profile?.slug && (
-          <div className="mb-6 animate-scale-in">
+          <div className="mb-6 animate-scale-in space-y-3">
+            <Button onClick={previewBookingPage} variant="outline" className="w-full shadow-lg hover:shadow-xl" size="lg">
+              <ExternalLink className="mr-2 h-5 w-5" />
+              Preview Booking Page
+            </Button>
             <Button onClick={copyBookingLink} className="w-full shadow-lg hover:shadow-xl" size="lg">
               <LinkIcon className="mr-2 h-5 w-5" />
               Copy Booking Link
