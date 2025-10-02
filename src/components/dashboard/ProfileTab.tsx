@@ -11,11 +11,9 @@ import { Loader2, Upload, X, ImageIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const BACKGROUND_STYLES = [
-  { label: "Light Gray", value: "min-h-screen bg-muted/30" },
-  { label: "Clean White", value: "min-h-screen bg-background" },
-  { label: "Subtle Gradient", value: "min-h-screen bg-gradient-to-br from-primary/5 to-accent/5" },
-  { label: "Dark Mode", value: "min-h-screen bg-slate-900 dark:bg-slate-950" },
-  { label: "Warm Gradient", value: "min-h-screen bg-gradient-to-br from-orange-50 to-pink-50 dark:from-orange-950 dark:to-pink-950" },
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+  { label: "Automatic", value: "auto" },
 ];
 
 interface ProfileTabProps {
@@ -369,7 +367,7 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
             </Select>
 
             <p className="text-sm text-muted-foreground">
-              Choose how your booking page background appears to clients
+              Choose light, dark, or automatic (based on device settings)
             </p>
           </div>
 

@@ -115,10 +115,10 @@ const BookingPage = () => {
     return <div className="min-h-screen flex items-center justify-center"><p>Creator not found</p></div>;
   }
 
-  const backgroundClass = profile.background_style || "min-h-screen bg-muted/30";
+  const themeClass = profile.background_style === 'dark' ? 'dark' : profile.background_style === 'light' ? 'light' : '';
 
   return (
-    <div className={`${backgroundClass} py-12 animate-fade-in`}>
+    <div className={`${themeClass} min-h-screen bg-background text-foreground py-12 animate-fade-in`}>
       {/* Banner Section */}
       {profile.banner_url && (
         <div className="container max-w-6xl mx-auto px-4 mb-8">
