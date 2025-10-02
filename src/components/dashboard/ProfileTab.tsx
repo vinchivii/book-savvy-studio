@@ -345,14 +345,6 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
               <p className="text-sm text-muted-foreground">
                 Upload an image for your booking page banner (max 5MB)
               </p>
-              
-              <Input
-                type="url"
-                value={formData.banner_url}
-                onChange={(e) => handleChange("banner_url", e.target.value)}
-                placeholder="Or paste banner URL here"
-                className="mt-2"
-              />
             </div>
           </div>
 
@@ -435,16 +427,8 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
                 />
                 
                 <p className="text-sm text-muted-foreground">
-                  Upload an image or enter a URL below (max 5MB)
+                  Upload an image (max 5MB)
                 </p>
-                
-                <Input
-                  type="url"
-                  value={formData.avatar_url}
-                  onChange={(e) => handleChange("avatar_url", e.target.value)}
-                  placeholder="Or paste image URL here"
-                  className="mt-2"
-                />
               </div>
             </div>
           </div>
