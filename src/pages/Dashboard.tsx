@@ -5,7 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Calendar, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle } from "lucide-react";
+import { Calendar, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -167,10 +167,6 @@ const Dashboard = () => {
                 </DropdownMenu>
               </>
             )}
-            <Button onClick={handleLogout} variant="outline" size="sm">
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
           </div>
         </div>
       </header>
@@ -255,7 +251,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="profile">
-            <ProfileTab userId={user?.id || ""} />
+            <ProfileTab userId={user?.id || ""} onLogout={handleLogout} />
           </TabsContent>
         </Tabs>
       </div>
