@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, LogOut, Calendar, Clock } from "lucide-react";
+import { Loader2, LogOut, Calendar, Clock, ArrowLeftRight } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -29,11 +29,13 @@ const ClientDashboard = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     checkAuth();
     fetchBookings();
+    fetchUserProfile();
   }, []);
 
   const checkAuth = async () => {
@@ -43,6 +45,48 @@ const ClientDashboard = () => {
       return;
     }
     setUser(session.user);
+  };
+
+  const fetchUserProfile = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setUserProfile(data);
+    } catch (error: any) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+
+  const handleSwitchToBusinessDashboard = async () => {
+    try {
+      // Check if user already has creator role
+      if (userProfile?.role === "creator") {
+        navigate("/dashboard");
+        return;
+      }
+
+      // Update user role to creator
+      const { error } = await supabase
+        .from("profiles")
+        .update({ role: "creator" })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast.success("Switched to Business account! Please complete your profile setup.");
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error("Error switching to business:", error);
+      toast.error("Failed to switch to business account");
+    }
   };
 
   const fetchBookings = async () => {
@@ -112,10 +156,16 @@ const ClientDashboard = () => {
               Welcome back, {user?.email}
             </p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleSwitchToBusinessDashboard}>
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
+              Business View
+            </Button>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Bookings List */}
