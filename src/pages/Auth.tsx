@@ -18,21 +18,53 @@ const Auth = () => {
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        const role = await checkUserRole(session.user.id);
+        redirectBasedOnRole(role);
       }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/dashboard");
+        // Defer role check to avoid blocking auth state change
+        setTimeout(async () => {
+          const role = await checkUserRole(session.user.id);
+          redirectBasedOnRole(role);
+        }, 0);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const checkUserRole = async (userId: string): Promise<string> => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
+
+      if (error || !data) {
+        return "client"; // Default to client if no profile exists
+      }
+
+      return data.role || "creator";
+    } catch (error) {
+      console.error("Error checking user role:", error);
+      return "client";
+    }
+  };
+
+  const redirectBasedOnRole = (role: string) => {
+    if (role === "creator") {
+      navigate("/dashboard");
+    } else {
+      navigate("/client-dashboard");
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +105,7 @@ const Auth = () => {
         if (error) throw error;
 
         if (data.user) {
-          // Create profile with slug
+          // Create profile with slug and default role
           const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-');
           const { error: profileError } = await supabase
             .from('profiles')
@@ -81,6 +113,7 @@ const Auth = () => {
               id: data.user.id,
               full_name: fullName,
               slug: slug,
+              role: 'creator', // Default to creator for auth page signups
             });
 
           if (profileError) {
