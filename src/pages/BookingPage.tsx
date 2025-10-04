@@ -19,6 +19,7 @@ const BookingPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [bookingFlowState, setBookingFlowState] = useState<'choice' | 'guest'>('choice');
+  const [currentUser, setCurrentUser] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -31,7 +32,42 @@ const BookingPage = () => {
 
   useEffect(() => {
     if (slug) fetchCreatorData();
+    checkAuthAndPrefill();
   }, [slug]);
+
+  const checkAuthAndPrefill = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      setCurrentUser(session.user);
+      
+      // Fetch user profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      
+      // Pre-fill form data
+      setFormData(prev => ({
+        ...prev,
+        name: profileData?.full_name || "",
+        email: session.user.email || "",
+      }));
+      
+      // Auto-advance to guest form if they were redirected back
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnedFromAuth = urlParams.get('returned');
+      const serviceId = urlParams.get('serviceId');
+      
+      if (returnedFromAuth === 'true' && serviceId && services.length > 0) {
+        const service = services.find(s => s.id === serviceId);
+        if (service) {
+          setSelectedService(service);
+          setBookingFlowState('guest');
+        }
+      }
+    }
+  };
 
   const fetchCreatorData = async () => {
     const { data: profileData, error: profileError } = await supabase
@@ -221,11 +257,11 @@ const BookingPage = () => {
                     <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
                       <p>Already have an account?</p>
                       <div className="flex items-center gap-2">
-                        <Link to="/auth?from=booking">
+                        <Link to={`/auth?from=booking&returnTo=${slug}&serviceId=${selectedService.id}`}>
                           <Button variant="outline" size="sm">Log In</Button>
                         </Link>
                         <span>or</span>
-                        <Link to="/auth?from=booking">
+                        <Link to={`/auth?from=booking&returnTo=${slug}&serviceId=${selectedService.id}`}>
                           <Button variant="outline" size="sm">Sign Up</Button>
                         </Link>
                       </div>

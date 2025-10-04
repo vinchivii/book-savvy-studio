@@ -20,6 +20,8 @@ const Auth = () => {
   // Check if user came from booking page
   const searchParams = new URLSearchParams(window.location.search);
   const fromBooking = searchParams.get('from') === 'booking';
+  const returnTo = searchParams.get('returnTo');
+  const serviceId = searchParams.get('serviceId');
   
   // Set default role to client if coming from booking
   useEffect(() => {
@@ -32,8 +34,11 @@ const Auth = () => {
     // Check if user is already logged in
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
-        // If from booking, always go to client dashboard
-        if (fromBooking) {
+        // If from booking, redirect back to the booking page
+        if (fromBooking && returnTo && serviceId) {
+          navigate(`/${returnTo}?returned=true&serviceId=${serviceId}`);
+          return;
+        } else if (fromBooking) {
           navigate("/client-dashboard");
           return;
         }
@@ -48,8 +53,11 @@ const Auth = () => {
       if (session) {
         // Defer role check to avoid blocking auth state change
         setTimeout(async () => {
-          // If from booking, always go to client dashboard
-          if (fromBooking) {
+          // If from booking, redirect back to the booking page
+          if (fromBooking && returnTo && serviceId) {
+            navigate(`/${returnTo}?returned=true&serviceId=${serviceId}`);
+            return;
+          } else if (fromBooking) {
             navigate("/client-dashboard");
             return;
           }
