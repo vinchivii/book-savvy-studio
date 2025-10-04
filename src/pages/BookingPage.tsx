@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Calendar, Clock, DollarSign, Loader2 } from "lucide-react";
+import { Calendar, Clock, DollarSign, Loader2, Home } from "lucide-react";
 import { sendBookingConfirmationEmail } from "@/lib/emails";
 
 const BookingPage = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [services, setServices] = useState<any[]>([]);
   const [selectedService, setSelectedService] = useState<any>(null);
@@ -21,6 +22,7 @@ const BookingPage = () => {
   const [bookingFlowState, setBookingFlowState] = useState<'choice' | 'guest'>('choice');
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [pendingServiceId, setPendingServiceId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -59,9 +61,11 @@ const BookingPage = () => {
       // Fetch user profile
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, role')
         .eq('id', session.user.id)
         .maybeSingle();
+      
+      setUserRole(profileData?.role || null);
       
       // Pre-fill form data
       setFormData(prev => ({
@@ -80,6 +84,19 @@ const BookingPage = () => {
         // Clean up URL
         window.history.replaceState({}, '', window.location.pathname);
       }
+    }
+  };
+
+  const handleDashboardClick = () => {
+    if (!currentUser) {
+      navigate('/auth');
+      return;
+    }
+    
+    if (userRole === 'creator') {
+      navigate('/dashboard');
+    } else {
+      navigate('/client-dashboard');
     }
   };
 
@@ -169,6 +186,21 @@ const BookingPage = () => {
 
   return (
     <div className={`${themeClass} min-h-screen bg-background text-foreground flex flex-col items-center py-12 animate-fade-in`}>
+      {/* Dashboard Button */}
+      {currentUser && (
+        <div className="w-full max-w-6xl mx-auto px-4 mb-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDashboardClick}
+            className="gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </div>
+      )}
+      
       {/* Block 1: Banner and Profile Info */}
       <div className="w-full max-w-4xl mx-auto px-4 mb-12">
         {/* Banner Section */}
