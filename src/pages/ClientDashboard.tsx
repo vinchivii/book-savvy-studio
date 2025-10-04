@@ -234,6 +234,25 @@ const ClientDashboard = () => {
                       <p className="text-sm text-muted-foreground">{booking.notes}</p>
                     </div>
                   )}
+
+                  {/* Payment Options */}
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="font-medium mb-3">Payment Options</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      <Button variant="outline" className="w-full">
+                        CashApp
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        Apple Pay
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        Stripe
+                      </Button>
+                      <Button variant="outline" className="w-full">
+                        Cash
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
