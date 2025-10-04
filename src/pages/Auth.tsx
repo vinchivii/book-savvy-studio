@@ -14,6 +14,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<"creator" | "client">("creator");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,7 +106,7 @@ const Auth = () => {
         if (error) throw error;
 
         if (data.user) {
-          // Create profile with slug and default role
+          // Create profile with slug and user-selected role
           const slug = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-');
           const { error: profileError } = await supabase
             .from('profiles')
@@ -113,7 +114,7 @@ const Auth = () => {
               id: data.user.id,
               full_name: fullName,
               slug: slug,
-              role: 'creator', // Default to creator for auth page signups
+              role: role, // Use the role selected during signup
             });
 
           if (profileError) {
@@ -154,17 +155,53 @@ const Auth = () => {
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="John Doe"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={!isLogin}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="role">I am a...</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setRole("creator")}
+                      className={`p-4 border rounded-lg text-left transition-all ${
+                        role === "creator"
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="font-medium mb-1">Business</div>
+                      <div className="text-xs text-muted-foreground">
+                        I want to list my services
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRole("client")}
+                      className={`p-4 border rounded-lg text-left transition-all ${
+                        role === "client"
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="font-medium mb-1">Client</div>
+                      <div className="text-xs text-muted-foreground">
+                        I'm looking for services
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
             
             <div className="space-y-2">
