@@ -36,7 +36,7 @@ const Auth = () => {
       if (session) {
         // If from booking, redirect back to the booking page
         if (fromBooking && returnTo && serviceId) {
-          navigate(`/${returnTo}?returned=true&serviceId=${serviceId}`);
+          navigate(`/book/${returnTo}?returned=true&serviceId=${serviceId}`);
           return;
         } else if (fromBooking) {
           navigate("/client-dashboard");
@@ -55,7 +55,7 @@ const Auth = () => {
         setTimeout(async () => {
           // If from booking, redirect back to the booking page
           if (fromBooking && returnTo && serviceId) {
-            navigate(`/${returnTo}?returned=true&serviceId=${serviceId}`);
+            navigate(`/book/${returnTo}?returned=true&serviceId=${serviceId}`);
             return;
           } else if (fromBooking) {
             navigate("/client-dashboard");
