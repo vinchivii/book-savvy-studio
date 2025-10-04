@@ -5,7 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, ArrowLeftRight } from "lucide-react";
+import { Calendar, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, ArrowLeftRight, LogOut } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -127,6 +127,10 @@ const Dashboard = () => {
             <Button onClick={() => navigate('/client-dashboard')} variant="outline" size="sm">
               <ArrowLeftRight className="mr-2 h-4 w-4" />
               {!isMobile && "Client View"}
+            </Button>
+            <Button onClick={handleLogout} variant="outline" size="sm">
+              <LogOut className="mr-2 h-4 w-4" />
+              {!isMobile && "Logout"}
             </Button>
             {profile?.slug && !isMobile && (
               <>
@@ -255,7 +259,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="profile">
-            <ProfileTab userId={user?.id || ""} onLogout={handleLogout} />
+            <ProfileTab userId={user?.id || ""} />
           </TabsContent>
         </Tabs>
       </div>

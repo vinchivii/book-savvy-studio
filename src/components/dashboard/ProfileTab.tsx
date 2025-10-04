@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,10 +19,9 @@ const BACKGROUND_STYLES = [
 
 interface ProfileTabProps {
   userId: string;
-  onLogout: () => void;
 }
 
-const ProfileTab = ({ userId, onLogout }: ProfileTabProps) => {
+const ProfileTab = ({ userId }: ProfileTabProps) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -440,19 +438,6 @@ const ProfileTab = ({ userId, onLogout }: ProfileTabProps) => {
           </Button>
         </form>
 
-        <Separator className="my-8" />
-
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground">Account Actions</h3>
-          <Button 
-            onClick={onLogout} 
-            variant="destructive" 
-            className="w-full"
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );
