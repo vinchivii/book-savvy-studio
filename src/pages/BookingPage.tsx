@@ -20,6 +20,7 @@ const BookingPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [bookingFlowState, setBookingFlowState] = useState<'choice' | 'guest'>('choice');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [pendingServiceId, setPendingServiceId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -32,8 +33,23 @@ const BookingPage = () => {
 
   useEffect(() => {
     if (slug) fetchCreatorData();
-    checkAuthAndPrefill();
   }, [slug]);
+
+  useEffect(() => {
+    checkAuthAndPrefill();
+  }, []);
+
+  // Auto-select service and show form when services are loaded and we have a pending service ID
+  useEffect(() => {
+    if (services.length > 0 && pendingServiceId) {
+      const service = services.find(s => s.id === pendingServiceId);
+      if (service) {
+        setSelectedService(service);
+        setBookingFlowState('guest');
+        setPendingServiceId(null);
+      }
+    }
+  }, [services, pendingServiceId]);
 
   const checkAuthAndPrefill = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -54,17 +70,15 @@ const BookingPage = () => {
         email: session.user.email || "",
       }));
       
-      // Auto-advance to guest form if they were redirected back
+      // Check if user was redirected back from auth
       const urlParams = new URLSearchParams(window.location.search);
       const returnedFromAuth = urlParams.get('returned');
       const serviceId = urlParams.get('serviceId');
       
-      if (returnedFromAuth === 'true' && serviceId && services.length > 0) {
-        const service = services.find(s => s.id === serviceId);
-        if (service) {
-          setSelectedService(service);
-          setBookingFlowState('guest');
-        }
+      if (returnedFromAuth === 'true' && serviceId) {
+        setPendingServiceId(serviceId);
+        // Clean up URL
+        window.history.replaceState({}, '', window.location.pathname);
       }
     }
   };
