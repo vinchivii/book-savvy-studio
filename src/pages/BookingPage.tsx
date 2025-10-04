@@ -221,11 +221,11 @@ const BookingPage = () => {
                     <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
                       <p>Already have an account?</p>
                       <div className="flex items-center gap-2">
-                        <Link to="/auth">
+                        <Link to="/auth?from=booking">
                           <Button variant="outline" size="sm">Log In</Button>
                         </Link>
                         <span>or</span>
-                        <Link to="/auth">
+                        <Link to="/auth?from=booking">
                           <Button variant="outline" size="sm">Sign Up</Button>
                         </Link>
                       </div>

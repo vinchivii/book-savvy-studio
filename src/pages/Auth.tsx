@@ -16,11 +16,28 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"creator" | "client">("creator");
   const navigate = useNavigate();
+  
+  // Check if user came from booking page
+  const searchParams = new URLSearchParams(window.location.search);
+  const fromBooking = searchParams.get('from') === 'booking';
+  
+  // Set default role to client if coming from booking
+  useEffect(() => {
+    if (fromBooking) {
+      setRole("client");
+    }
+  }, [fromBooking]);
 
   useEffect(() => {
     // Check if user is already logged in
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
+        // If from booking, always go to client dashboard
+        if (fromBooking) {
+          navigate("/client-dashboard");
+          return;
+        }
+        
         const role = await checkUserRole(session.user.id);
         redirectBasedOnRole(role);
       }
@@ -31,6 +48,12 @@ const Auth = () => {
       if (session) {
         // Defer role check to avoid blocking auth state change
         setTimeout(async () => {
+          // If from booking, always go to client dashboard
+          if (fromBooking) {
+            navigate("/client-dashboard");
+            return;
+          }
+          
           const role = await checkUserRole(session.user.id);
           redirectBasedOnRole(role);
         }, 0);
@@ -38,7 +61,7 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, fromBooking]);
 
   const checkUserRole = async (userId: string): Promise<string> => {
     try {
