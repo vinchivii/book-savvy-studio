@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ServicesTab from "@/components/dashboard/ServicesTab";
-import BookingsTab from "@/components/dashboard/BookingsTab";
+import CalendarTab from "@/components/dashboard/CalendarTab";
 import ClientsTab from "@/components/dashboard/ClientsTab";
 import ProfileTab from "@/components/dashboard/ProfileTab";
 
@@ -236,7 +236,7 @@ const Dashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="bookings">
               <Calendar className="mr-2 h-4 w-4" />
-              {!isMobile && "Bookings"}
+              {!isMobile && "Schedule"}
             </TabsTrigger>
             <TabsTrigger value="clients">
               <Users className="mr-2 h-4 w-4" />
@@ -253,7 +253,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="bookings">
-            <BookingsTab userId={user?.id || ""} />
+            <CalendarTab userId={user?.id || ""} />
           </TabsContent>
 
           <TabsContent value="clients">
