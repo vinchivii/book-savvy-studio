@@ -185,7 +185,7 @@ const BookingPage = () => {
   const themeClass = profile.background_style === 'dark' ? 'dark' : profile.background_style === 'light' ? 'light' : '';
 
   return (
-    <div className={`${themeClass} min-h-screen bg-background text-foreground flex flex-col items-center py-12 animate-fade-in`}>
+    <div className={`${themeClass} min-h-screen gradient-background text-foreground flex flex-col items-center py-12 animate-fade-in`}>
       {/* Dashboard Button */}
       {currentUser && (
         <div className="w-full max-w-6xl mx-auto px-4 mb-6">
@@ -217,7 +217,7 @@ const BookingPage = () => {
         )}
 
         {/* Profile Info Card */}
-        <Card className="max-w-xl mx-auto shadow-lg hover:shadow-xl transition-shadow animate-fade-in">
+        <Card className="max-w-xl mx-auto glass-panel shadow-glow hover:shadow-glow-sm transition-all animate-fade-in">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
@@ -255,7 +255,7 @@ const BookingPage = () => {
                 {services.map((service, index) => (
                   <Card 
                     key={service.id}
-                    className={`cursor-pointer transition-all hover-lift ${selectedService?.id === service.id ? 'ring-2 ring-primary shadow-glow-sm' : 'hover:shadow-md'}`}
+                    className={`cursor-pointer transition-all hover-lift hover-glass ${selectedService?.id === service.id ? 'ring-2 ring-primary shadow-glow' : 'hover:shadow-lg'}`}
                     onClick={() => handleServiceSelect(service)}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
@@ -276,7 +276,7 @@ const BookingPage = () => {
           {/* Booking Flow Column */}
           <div className="space-y-8 animate-slide-in-right">
             {selectedService && bookingFlowState === 'choice' && (
-              <Card className="animate-scale-in shadow-lg">
+              <Card className="animate-scale-in glass-panel shadow-glow">
                 <CardHeader>
                   <CardTitle>How would you like to book?</CardTitle>
                   <CardDescription>Choose your preferred booking method</CardDescription>
@@ -318,7 +318,7 @@ const BookingPage = () => {
             )}
 
             {selectedService && bookingFlowState === 'guest' && (
-              <Card className="animate-scale-in shadow-lg">
+              <Card className="animate-scale-in glass-panel shadow-glow">
                 <CardHeader>
                   <CardTitle>Book {selectedService.title}</CardTitle>
                   <CardDescription>Fill in your details to request a booking</CardDescription>
