@@ -24,7 +24,7 @@ All colors MUST be HSL.
     --secondary-foreground: 220 15% 20%;
 
     --muted: 220 15% 94%;
-    --muted-foreground: 220 10% 45%;
+    --muted-foreground: 220 10% 35%;
 
     --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
@@ -32,15 +32,15 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 100% / 0.28;
-    --input: 0 0% 100% / 0.28;
+    --border: 0 0% 100% / 0.4;
+    --input: 0 0% 100% / 0.4;
     --ring: 217 91% 60%;
 
     --radius: 1.25rem;
     
     /* Glass-morphism */
-    --glass-bg: 255 255 255 / 0.12;
-    --glass-border: 255 255 255 / 0.28;
+    --glass-bg: 255 255 255 / 0.18;
+    --glass-border: 255 255 255 / 0.4;
     --glass-blur: 20px;
     --glass-glow: 0 8px 32px 0 hsl(217 91% 60% / 0.15);
     --glass-glow-strong: 0 8px 32px 0 hsl(217 91% 60% / 0.35);
@@ -87,7 +87,7 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 92%;
 
     --muted: 220 15% 18%;
-    --muted-foreground: 220 10% 60%;
+    --muted-foreground: 220 10% 70%;
 
     --accent: 217 91% 65%;
     --accent-foreground: 0 0% 100%;
@@ -95,13 +95,13 @@ All colors MUST be HSL.
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 255 255 255 / 0.16;
-    --input: 255 255 255 / 0.16;
+    --border: 255 255 255 / 0.24;
+    --input: 255 255 255 / 0.24;
     --ring: 217 91% 65%;
     
     /* Glass-morphism */
-    --glass-bg: 255 255 255 / 0.05;
-    --glass-border: 255 255 255 / 0.16;
+    --glass-bg: 255 255 255 / 0.08;
+    --glass-border: 255 255 255 / 0.24;
     --glass-blur: 24px;
     --glass-glow: 0 8px 32px 0 hsl(217 91% 60% / 0.2);
     --glass-glow-strong: 0 8px 32px 0 hsl(217 91% 60% / 0.4);
