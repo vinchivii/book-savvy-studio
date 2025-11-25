@@ -1,5 +1,5 @@
-// This function is a placeholder for future backend integration (e.g., Supabase Edge Function or Express API).
-// It currently just logs to the console and returns a success message.
+import { supabase } from "@/integrations/supabase/client";
+
 export async function sendBookingConfirmationEmail(
   toEmail: string,
   clientName: string,
@@ -7,8 +7,20 @@ export async function sendBookingConfirmationEmail(
   bookingDate: string,
   status: 'pending' | 'accepted' | 'declined'
 ) {
-  console.log(`[EMAIL-STUB] Sending ${status} confirmation to: ${toEmail}`);
-  console.log(`Service: ${serviceTitle}, Date: ${bookingDate}, Client: ${clientName}`);
-  // In a real app, this would call an API endpoint to a service like Resend/Postmark.
-  return { success: true, message: 'Email logic stub executed.' };
+  try {
+    const { data, error } = await supabase.functions.invoke('send-booking-email', {
+      body: { toEmail, clientName, serviceTitle, bookingDate, status },
+    });
+
+    if (error) {
+      console.error('Email sending failed:', error);
+      return { success: false, message: 'Failed to send email' };
+    }
+
+    console.log('Email sent successfully:', data);
+    return { success: true, message: 'Email sent successfully' };
+  } catch (error) {
+    console.error('Error calling email function:', error);
+    return { success: false, message: 'Email service error' };
+  }
 }
