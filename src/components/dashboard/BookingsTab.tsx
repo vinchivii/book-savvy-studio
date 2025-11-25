@@ -99,16 +99,7 @@ const BookingsTab = ({ userId }: { userId: string }) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full glass animate-pulse">
-            <Calendar className="h-6 w-6 text-primary" />
-          </div>
-          <p className="text-foreground font-medium">Loading bookings...</p>
-        </div>
-      </div>
-    );
+    return <div className="text-center py-8">Loading bookings...</div>;
   }
 
   return (

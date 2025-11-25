@@ -113,13 +113,13 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-background animate-fade-in">
+    <div className="min-h-screen gradient-subtle animate-fade-in">
       {/* Header */}
-      <header className="glass-card border-b-2 border-border/50 shadow-xl sticky top-0 z-40 backdrop-blur-xl">
+      <header className="bg-card border-b shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-accent bg-clip-text text-transparent">BrandBook</h1>
-            <p className="text-sm text-foreground/70">
+            <h1 className="text-2xl font-bold">BrandBook</h1>
+            <p className="text-sm text-muted-foreground">
               Welcome back, {profile?.full_name || user?.email}
             </p>
           </div>

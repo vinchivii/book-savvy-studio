@@ -171,8 +171,8 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center gradient-background p-4 animate-fade-in">
-      <Card className="w-full max-w-md glass-panel shadow-glow animate-scale-in">
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4 animate-fade-in">
+      <Card className="w-full max-w-md shadow-xl animate-scale-in">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
             {isLogin ? "Welcome Back" : "Create Account"}

@@ -146,13 +146,13 @@ const ClientDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen gradient-background">
+    <div className="min-h-screen bg-muted/30">
       <div className="container mx-auto p-6 max-w-6xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-accent bg-clip-text text-transparent">My Bookings</h1>
-            <p className="text-foreground/70 mt-1">
+            <h1 className="text-3xl font-bold">My Bookings</h1>
+            <p className="text-muted-foreground mt-1">
               Welcome back, {user?.email}
             </p>
           </div>
@@ -184,7 +184,7 @@ const ClientDashboard = () => {
         ) : (
           <div className="grid gap-4">
             {bookings.map((booking) => (
-              <Card key={booking.id} className="hover:shadow-glow-sm hover-glass transition-all">
+              <Card key={booking.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
