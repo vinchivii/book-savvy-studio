@@ -23,6 +23,10 @@ export interface TimeSlot {
   end: string;
 }
 
+// Booking status types
+export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+export type PaymentStatus = 'unpaid' | 'pending' | 'paid' | 'refunded';
+
 export interface BookingWithPayment {
   id: string;
   service_id: string;
@@ -32,8 +36,8 @@ export interface BookingWithPayment {
   client_email: string;
   client_phone?: string;
   notes?: string;
-  status: string;
-  payment_status: 'unpaid' | 'pending' | 'paid' | 'refunded';
+  status: BookingStatus;
+  payment_status: PaymentStatus;
   price_at_booking: number;
   currency: string;
   stripe_checkout_session_id?: string;

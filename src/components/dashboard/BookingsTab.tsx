@@ -8,15 +8,17 @@ import { Calendar, Clock, Mail, Phone, CheckCircle, XCircle } from "lucide-react
 import { format } from "date-fns";
 import { sendBookingConfirmationEmail } from "@/lib/emails";
 
+import { BookingStatus, PaymentStatus } from "@/types/booking";
+
 interface Booking {
   id: string;
   client_name: string;
   client_email: string;
   client_phone: string | null;
   booking_date: string;
-  status: string;
+  status: BookingStatus;
+  payment_status: PaymentStatus;
   notes: string | null;
-  payment_intent_id: string | null;
   services: {
     title: string;
     price: number;
@@ -50,13 +52,12 @@ const BookingsTab = ({ userId }: { userId: string }) => {
       console.error("Error fetching bookings:", error);
       toast.error("Failed to load bookings");
     } else {
-      setBookings(data || []);
+      setBookings((data as unknown as Booking[]) || []);
     }
     setLoading(false);
   };
 
-  const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
-    // Get the booking details before updating
+  const handleStatusUpdate = async (bookingId: string, newStatus: BookingStatus) => {
     const booking = bookings.find(b => b.id === bookingId);
     
     const { error } = await supabase
@@ -67,14 +68,13 @@ const BookingsTab = ({ userId }: { userId: string }) => {
     if (error) {
       toast.error("Failed to update booking");
     } else {
-      // Send email notification to client about status change
-      if (booking && (newStatus === 'accepted' || newStatus === 'declined')) {
+      if (booking && (newStatus === 'confirmed' || newStatus === 'cancelled')) {
         await sendBookingConfirmationEmail(
           booking.client_email,
           booking.client_name,
           booking.services.title,
           format(new Date(booking.booking_date), "PPP 'at' p"),
-          newStatus as 'accepted' | 'declined'
+          newStatus === 'confirmed' ? 'accepted' : 'declined'
         );
       }
       
@@ -83,17 +83,32 @@ const BookingsTab = ({ userId }: { userId: string }) => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+  const getStatusBadge = (status: BookingStatus) => {
+    const variants: Record<BookingStatus, "default" | "secondary" | "destructive" | "outline"> = {
       pending: "secondary",
-      accepted: "default",
-      declined: "destructive",
+      confirmed: "default",
+      cancelled: "destructive",
       completed: "outline",
     };
     
     return (
-      <Badge variant={variants[status] || "secondary"}>
+      <Badge variant={variants[status]}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  const getPaymentBadge = (paymentStatus: PaymentStatus) => {
+    const variants: Record<PaymentStatus, "default" | "secondary" | "destructive" | "outline"> = {
+      paid: "default",
+      pending: "secondary",
+      unpaid: "outline",
+      refunded: "destructive",
+    };
+    
+    return (
+      <Badge variant={variants[paymentStatus]}>
+        {paymentStatus === 'paid' ? 'Paid' : paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}
       </Badge>
     );
   };
@@ -164,20 +179,9 @@ const BookingsTab = ({ userId }: { userId: string }) => {
                     <div className="space-y-1 text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <p>Price: ${booking.services.price.toFixed(2)}</p>
-                        {/* Mock isPaid for MVP - in production this would be based on payment_intent_id status */}
-                        {(() => {
-                          const isPaid = false; // MVP: always unpaid until Stripe is integrated
-                          return isPaid ? (
-                            <Badge variant="default">Payment Captured</Badge>
-                          ) : (
-                            <Badge variant="secondary">Unpaid</Badge>
-                          );
-                        })()}
+                        {getPaymentBadge(booking.payment_status)}
                       </div>
                       <p>Duration: {booking.services.duration} min</p>
-                      {booking.payment_intent_id && (
-                        <p className="text-xs">Payment ID: {booking.payment_intent_id}</p>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -192,24 +196,24 @@ const BookingsTab = ({ userId }: { userId: string }) => {
                 {booking.status === 'pending' && (
                   <div className="flex gap-2 pt-2 border-t">
                     <Button
-                      onClick={() => handleStatusUpdate(booking.id, 'accepted')}
+                      onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
                       className="flex-1"
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
-                      Accept
+                      Confirm
                     </Button>
                     <Button
-                      onClick={() => handleStatusUpdate(booking.id, 'declined')}
+                      onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
                       variant="outline"
                       className="flex-1"
                     >
                       <XCircle className="mr-2 h-4 w-4" />
-                      Decline
+                      Cancel
                     </Button>
                   </div>
                 )}
 
-                {booking.status === 'accepted' && (
+                {booking.status === 'confirmed' && (
                   <Button
                     onClick={() => handleStatusUpdate(booking.id, 'completed')}
                     variant="outline"
