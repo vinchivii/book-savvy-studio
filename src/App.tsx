@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ClientDashboard from "./pages/ClientDashboard";
+import Settings from "./pages/Settings";
 import BookingPage from "./pages/BookingPage";
 import BookingSuccess from "./pages/BookingSuccess";
 import BookingCancelled from "./pages/BookingCancelled";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/client-dashboard" element={<ClientDashboard />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/book/:slug" element={<BookingPage />} />
         <Route path="/booking/success" element={<BookingSuccess />} />
         <Route path="/booking/cancelled" element={<BookingCancelled />} />
