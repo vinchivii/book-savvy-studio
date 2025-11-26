@@ -82,7 +82,7 @@ const Settings = () => {
 
       const { error } = await supabase
         .from("profiles")
-        .update({ role: "business" })
+        .update({ role: "creator" })
         .eq("id", user.id);
 
       if (error) throw error;
@@ -194,23 +194,23 @@ const Settings = () => {
                 {/* Business View Card */}
                 <Card 
                   className={`cursor-pointer transition-all hover:shadow-md ${
-                    profile?.role === "business" ? "ring-2 ring-primary" : ""
+                    profile?.role === "creator" ? "ring-2 ring-primary" : ""
                   }`}
-                  onClick={() => profile?.role !== "business" && handleSwitchToBusiness()}
+                  onClick={() => profile?.role !== "creator" && handleSwitchToBusiness()}
                 >
                   <CardContent className="pt-6">
                     <div className="flex flex-col items-center text-center space-y-4">
-                      <div className={`p-4 rounded-full ${
-                        profile?.role === "business" ? "bg-primary/10" : "bg-muted"
+                    <div className={`p-4 rounded-full ${
+                        profile?.role === "creator" ? "bg-primary/10" : "bg-muted"
                       }`}>
                         <Briefcase className={`h-8 w-8 ${
-                          profile?.role === "business" ? "text-primary" : "text-muted-foreground"
+                          profile?.role === "creator" ? "text-primary" : "text-muted-foreground"
                         }`} />
                       </div>
                       <div>
                         <h3 className="font-semibold text-lg flex items-center justify-center gap-2">
                           Business View
-                          {profile?.role === "business" && (
+                          {profile?.role === "creator" && (
                             <Check className="h-5 w-5 text-primary" />
                           )}
                         </h3>
@@ -218,7 +218,7 @@ const Settings = () => {
                           Manage services, bookings, and clients
                         </p>
                       </div>
-                      {profile?.role !== "business" && (
+                      {profile?.role !== "creator" && (
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -238,7 +238,7 @@ const Settings = () => {
                           )}
                         </Button>
                       )}
-                      {profile?.role === "business" && (
+                      {profile?.role === "creator" && (
                         <Badge variant="default" className="w-full justify-center">
                           Current View
                         </Badge>
@@ -248,7 +248,7 @@ const Settings = () => {
                 </Card>
               </div>
 
-              {!profile?.business_name && profile?.role !== "business" && (
+              {!profile?.business_name && profile?.role !== "creator" && (
                 <div className="bg-muted p-4 rounded-lg">
                   <p className="text-sm text-muted-foreground">
                     💡 To use Business view, complete your business profile first by switching to Business view and filling in your Business Name, Booking URL, and Bio.
