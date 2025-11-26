@@ -189,34 +189,38 @@ export type Database = {
           },
         ]
       }
-      notifications_sent: {
+      notifications: {
         Row: {
-          booking_id: string
+          action_url: string | null
+          body: string
+          created_at: string
           id: string
-          notification_type: string
-          sent_at: string | null
+          read: boolean
+          title: string
+          type: string
+          user_id: string
         }
         Insert: {
-          booking_id: string
+          action_url?: string | null
+          body: string
+          created_at?: string
           id?: string
-          notification_type: string
-          sent_at?: string | null
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
         }
         Update: {
-          booking_id?: string
+          action_url?: string | null
+          body?: string
+          created_at?: string
           id?: string
-          notification_type?: string
-          sent_at?: string | null
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_sent_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {

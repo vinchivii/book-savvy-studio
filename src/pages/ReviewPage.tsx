@@ -71,16 +71,31 @@ const ReviewPage = () => {
       const service = Array.isArray(booking.services) ? booking.services[0] : booking.services;
       const profile = Array.isArray(booking.profiles) ? booking.profiles[0] : booking.profiles;
 
-      const { error } = await supabase.from("reviews").insert({
+      const { data: review, error } = await supabase.from("reviews").insert({
         booking_id: bookingId!,
         creator_id: booking.creator_id,
         rating,
         comment: comment.trim() || null,
         client_name: booking.client_name,
         is_public: true,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Notify business owner about the review
+      try {
+        await supabase.functions.invoke("notify-review-submission", {
+          body: {
+            reviewId: review.id,
+            bookingId: bookingId,
+            rating,
+            creatorId: booking.creator_id,
+          },
+        });
+      } catch (notifyError) {
+        console.error("Error sending review notification:", notifyError);
+        // Don't fail the review submission if notification fails
+      }
 
       setSubmitted(true);
       toast.success("Thank you for your feedback!");
