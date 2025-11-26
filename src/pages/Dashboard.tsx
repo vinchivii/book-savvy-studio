@@ -5,7 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, CalendarClock, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, ArrowLeftRight, LogOut } from "lucide-react";
+import { Calendar, Clock, CalendarClock, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, ArrowLeftRight, LogOut, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -17,6 +17,7 @@ import { AvailabilityTab } from "@/components/dashboard/AvailabilityTab";
 import { TimeOffTab } from "@/components/dashboard/TimeOffTab";
 import BookingsTab from "@/components/dashboard/BookingsTab";
 import AnalyticsTab from "@/components/dashboard/AnalyticsTab";
+import ReviewsTab from "@/components/dashboard/ReviewsTab";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -233,7 +234,7 @@ const Dashboard = () => {
         )}
         
         <Tabs defaultValue="services" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
             <TabsTrigger value="services">
               <Briefcase className="mr-2 h-4 w-4" />
               {!isMobile && "Services"}
@@ -253,6 +254,10 @@ const Dashboard = () => {
             <TabsTrigger value="analytics">
               <Briefcase className="mr-2 h-4 w-4" />
               {!isMobile && "Analytics"}
+            </TabsTrigger>
+            <TabsTrigger value="reviews">
+              <Star className="mr-2 h-4 w-4" />
+              {!isMobile && "Reviews"}
             </TabsTrigger>
             <TabsTrigger value="availability">
               <Clock className="mr-2 h-4 w-4" />
@@ -286,6 +291,10 @@ const Dashboard = () => {
 
           <TabsContent value="analytics">
             <AnalyticsTab userId={user?.id || ""} />
+          </TabsContent>
+
+          <TabsContent value="reviews">
+            <ReviewsTab userId={user?.id || ""} />
           </TabsContent>
 
           <TabsContent value="availability">
