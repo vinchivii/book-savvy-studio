@@ -92,7 +92,7 @@ const ClientDashboard = () => {
       setUserProfile(data);
       
       // Check if user has client role
-      if (data?.role === "business") {
+      if (data?.role === "creator") {
         toast.info("You're viewing as Business. Switch to Client role in Settings to see this page.");
         navigate("/dashboard");
       }

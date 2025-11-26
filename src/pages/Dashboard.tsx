@@ -52,8 +52,8 @@ const Dashboard = () => {
       } else {
         setProfile(profileData);
         
-        // Check if user has business role
-        if (profileData?.role !== 'business') {
+        // Check if user has business role (creator)
+        if (profileData?.role !== 'creator') {
           toast.error("Access denied. Please switch to Business role in Settings.");
           navigate("/client-dashboard");
           return;
