@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, LogOut, Calendar, Clock, ArrowLeftRight, User, Mail, Phone, Star, X, Edit } from "lucide-react";
+import { Loader2, LogOut, Calendar, Clock, Settings, User, Mail, Phone, Star, X, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { format, isPast, isFuture } from "date-fns";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -98,38 +98,6 @@ const ClientDashboard = () => {
       }
     } catch (error: any) {
       console.error("Error fetching profile:", error);
-    }
-  };
-
-  const handleSwitchToBusinessDashboard = async () => {
-    try {
-      // Check if user's business profile is complete
-      const profileComplete = userProfile?.business_name && userProfile?.slug && userProfile?.bio;
-      
-      if (!profileComplete) {
-        toast.error("Please complete your business profile (Business Name, Booking URL, and Bio) before switching to Business role.");
-        return;
-      }
-
-      // Check if user already has business role
-      if (userProfile?.role === "business") {
-        navigate("/dashboard");
-        return;
-      }
-
-      // Update user role to business
-      const { error } = await supabase
-        .from("profiles")
-        .update({ role: "business" })
-        .eq("id", user.id);
-
-      if (error) throw error;
-
-      toast.success("Switched to Business account!");
-      navigate("/dashboard");
-    } catch (error: any) {
-      console.error("Error switching to business:", error);
-      toast.error("Failed to switch to business account");
     }
   };
 
@@ -370,9 +338,9 @@ const ClientDashboard = () => {
               </DialogContent>
             </Dialog>
             
-            <Button variant="outline" onClick={handleSwitchToBusinessDashboard}>
-              <ArrowLeftRight className="mr-2 h-4 w-4" />
-              Business View
+            <Button variant="outline" onClick={() => navigate("/settings")}>
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
             </Button>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />

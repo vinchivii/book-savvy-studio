@@ -5,7 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, CalendarClock, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, ArrowLeftRight, LogOut, Star } from "lucide-react";
+import { Calendar, Clock, CalendarClock, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, Settings, LogOut, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -139,9 +139,9 @@ const Dashboard = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <NotificationBell />
-              <Button onClick={() => navigate('/client-dashboard')} variant="outline" size="sm">
-                <ArrowLeftRight className="mr-2 h-4 w-4" />
-                {!isMobile && "Client View"}
+              <Button onClick={() => navigate('/settings')} variant="outline" size="sm">
+                <Settings className="mr-2 h-4 w-4" />
+                {!isMobile && "Settings"}
               </Button>
               {profile?.slug && !isMobile && (
                 <>
