@@ -18,6 +18,7 @@ import { TimeOffTab } from "@/components/dashboard/TimeOffTab";
 import BookingsTab from "@/components/dashboard/BookingsTab";
 import AnalyticsTab from "@/components/dashboard/AnalyticsTab";
 import ReviewsTab from "@/components/dashboard/ReviewsTab";
+import { NotificationBell } from "@/components/NotificationBell";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -137,6 +138,7 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
+              <NotificationBell />
               <Button onClick={() => navigate('/client-dashboard')} variant="outline" size="sm">
                 <ArrowLeftRight className="mr-2 h-4 w-4" />
                 {!isMobile && "Client View"}

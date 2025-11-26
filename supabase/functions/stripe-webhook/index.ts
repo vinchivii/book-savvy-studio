@@ -57,6 +57,42 @@ serve(async (req) => {
         if (booking) {
           console.log("Booking confirmed:", bookingId);
 
+          // Get client user by looking up their profile
+          const { data: allProfiles } = await supabase
+            .from("profiles")
+            .select("id, full_name")
+            .limit(1000);
+
+          // Find matching user through auth.users
+          let clientUserId = null;
+          if (allProfiles) {
+            const { data: { users } } = await supabase.auth.admin.listUsers();
+            const clientUser = users?.find(u => u.email === booking.client_email);
+            if (clientUser) {
+              clientUserId = clientUser.id;
+            }
+          }
+
+          // Insert notification for client if they have an account
+          if (clientUserId) {
+            await supabase.from("notifications").insert({
+              user_id: clientUserId,
+              type: "booking_confirmed",
+              title: "Booking Confirmed! 🎉",
+              body: `Your booking for ${booking.services.title} with ${booking.profiles.business_name || booking.profiles.full_name} is confirmed!`,
+              action_url: "/client-dashboard",
+            });
+          }
+
+          // Insert notification for business owner
+          await supabase.from("notifications").insert({
+            user_id: booking.creator_id,
+            type: "booking_update",
+            title: "New Booking Confirmed",
+            body: `${booking.client_name} booked ${booking.services.title} for ${new Date(booking.booking_date).toLocaleString()}`,
+            action_url: "/dashboard",
+          });
+
           // Send confirmation email
           try {
             const bookingDate = new Date(booking.booking_date).toLocaleString();
@@ -84,7 +120,7 @@ serve(async (req) => {
         // Find booking by payment intent ID
         const { data: booking } = await supabase
           .from("bookings")
-          .select("id")
+          .select("*, profiles(*)")
           .eq("stripe_payment_intent_id", paymentIntent.id)
           .single();
 
@@ -96,6 +132,21 @@ serve(async (req) => {
               status: "cancelled",
             })
             .eq("id", booking.id);
+
+          // Try to get client user ID
+          const { data: { users } } = await supabase.auth.admin.listUsers();
+          const clientUser = users?.find(u => u.email === booking.client_email);
+
+          // Notify client about failed payment if they have an account
+          if (clientUser) {
+            await supabase.from("notifications").insert({
+              user_id: clientUser.id,
+              type: "payment_notice",
+              title: "Payment Failed",
+              body: "Your payment could not be processed. Please try booking again.",
+              action_url: `/book/${booking.profiles.slug}`,
+            });
+          }
 
           console.log("Booking cancelled due to payment failure:", booking.id);
         }

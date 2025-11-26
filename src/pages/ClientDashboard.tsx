@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Loader2, LogOut, Calendar, Clock, ArrowLeftRight, User, Mail, Phone, Star, X, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { format, isPast, isFuture } from "date-fns";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface Booking {
   id: string;
@@ -187,12 +188,30 @@ const ClientDashboard = () => {
     setCancellingBookingId(bookingId);
     
     try {
-      const { error } = await supabase
+      const { data: booking, error: bookingError } = await supabase
         .from("bookings")
         .update({ status: "cancelled" })
-        .eq("id", bookingId);
+        .eq("id", bookingId)
+        .select("*, profiles(*), services(*)")
+        .single();
 
-      if (error) throw error;
+      if (bookingError) throw bookingError;
+
+      // Get client user to send notification
+      if (booking) {
+        const { data: { users } } = await supabase.auth.admin.listUsers();
+        const clientUser = users?.find((u: any) => u.email === booking.client_email);
+
+        if (clientUser) {
+          await supabase.from("notifications").insert({
+            user_id: clientUser.id,
+            type: "booking_cancelled",
+            title: "Booking Cancelled",
+            body: `Your booking for ${booking.services.title} has been cancelled.`,
+            action_url: "/client-dashboard",
+          });
+        }
+      }
 
       toast.success("Booking cancelled successfully");
       fetchBookings(); // Refresh bookings
@@ -297,6 +316,7 @@ const ClientDashboard = () => {
             </p>
           </div>
           <div className="flex gap-2">
+            <NotificationBell />
             <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">
