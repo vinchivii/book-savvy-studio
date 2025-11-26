@@ -288,6 +288,51 @@ const BookingPage = () => {
             )}
           </CardHeader>
         </Card>
+
+        {/* Reviews Section */}
+        {reviews.length > 0 && (
+          <Card className="max-w-xl mx-auto shadow-lg mt-8">
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl">Client Reviews</CardTitle>
+              <CardDescription>
+                {(() => {
+                  const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+                  return (
+                    <div className="flex items-center justify-center gap-2 mt-2">
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} className={star <= Math.round(avgRating) ? "text-yellow-400" : "text-gray-300"}>★</span>
+                        ))}
+                      </div>
+                      <span className="font-semibold">{avgRating.toFixed(1)}</span>
+                      <span className="text-muted-foreground">({reviews.length} reviews)</span>
+                    </div>
+                  );
+                })()}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {reviews.slice(0, 3).map((review) => (
+                <div key={review.id} className="border-b last:border-0 pb-4 last:pb-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="font-medium">{review.client_name}</div>
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} className={`text-sm ${star <= review.rating ? "text-yellow-400" : "text-gray-300"}`}>★</span>
+                      ))}
+                    </div>
+                  </div>
+                  {review.comment && (
+                    <p className="text-sm text-muted-foreground">{review.comment}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Services and Booking Flow */}
