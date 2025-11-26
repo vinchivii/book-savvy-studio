@@ -8,6 +8,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ClientDashboard from "./pages/ClientDashboard";
 import BookingPage from "./pages/BookingPage";
+import BookingSuccess from "./pages/BookingSuccess";
+import BookingCancelled from "./pages/BookingCancelled";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/client-dashboard" element={<ClientDashboard />} />
           <Route path="/book/:slug" element={<BookingPage />} />
+          <Route path="/booking/success" element={<BookingSuccess />} />
+          <Route path="/booking/cancelled" element={<BookingCancelled />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
