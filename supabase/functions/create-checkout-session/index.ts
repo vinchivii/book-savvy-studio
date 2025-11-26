@@ -66,19 +66,53 @@ serve(async (req) => {
       throw new Error(`Bookings must be made at least ${MINIMUM_LEAD_TIME_HOURS} hours in advance`);
     }
 
-    // Check for conflicts
+    // Check availability - get day of week (0 = Sunday, 1 = Monday, etc.)
+    const dayOfWeek = bookingStart.getDay();
+    const timeString = bookingStart.toTimeString().slice(0, 5); // HH:MM format
+    
+    const { data: availability, error: availError } = await supabase
+      .from("availability")
+      .select("*")
+      .eq("creator_id", profile.id)
+      .eq("day_of_week", dayOfWeek)
+      .eq("is_active", true);
+
+    if (availError || !availability || availability.length === 0) {
+      throw new Error("Creator is not available on this day");
+    }
+
+    // Check if time falls within any availability slot
+    const isWithinAvailability = availability.some(slot => {
+      return timeString >= slot.start_time && timeString < slot.end_time;
+    });
+
+    if (!isWithinAvailability) {
+      throw new Error("Selected time is outside creator's availability hours");
+    }
+
+    // Check for conflicts with booking end time
     const bookingEnd = new Date(bookingStart.getTime() + (service.duration + BUFFER_MINUTES) * 60 * 1000);
     
     const { data: conflicts } = await supabase
       .from("bookings")
-      .select("id")
+      .select("id, booking_date")
       .eq("creator_id", profile.id)
       .in("status", ["pending", "confirmed"])
-      .neq("payment_status", "refunded")
-      .or(`and(booking_date.lt.${bookingEnd.toISOString()},booking_date.gte.${bookingStart.toISOString()})`);
+      .neq("payment_status", "refunded");
 
+    // Check for overlapping bookings
     if (conflicts && conflicts.length > 0) {
-      throw new Error("This time slot is no longer available");
+      const hasConflict = conflicts.some((existingBooking: any) => {
+        const existingStart = new Date(existingBooking.booking_date);
+        const existingEnd = new Date(existingStart.getTime() + (service.duration + BUFFER_MINUTES) * 60 * 1000);
+        
+        // Check if bookings overlap
+        return (bookingStart < existingEnd && bookingEnd > existingStart);
+      });
+
+      if (hasConflict) {
+        throw new Error("This time slot is no longer available");
+      }
     }
 
     // Check time off
@@ -113,6 +147,7 @@ serve(async (req) => {
       .single();
 
     if (bookingError || !booking) {
+      console.error("Booking error:", bookingError);
       throw new Error("Failed to create booking");
     }
 

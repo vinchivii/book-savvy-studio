@@ -102,6 +102,24 @@ serve(async (req) => {
         break;
       }
 
+      case "checkout.session.expired": {
+        const expiredSession = event.data.object as Stripe.Checkout.Session;
+        const bookingId = expiredSession.metadata?.bookingId;
+        
+        if (bookingId) {
+          await supabase
+            .from("bookings")
+            .update({
+              payment_status: "unpaid",
+              status: "cancelled"
+            })
+            .eq("id", bookingId);
+          
+          console.log("Booking cancelled due to expired session:", bookingId);
+        }
+        break;
+      }
+
       default:
         console.log("Unhandled event type:", event.type);
     }

@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { toast } from "sonner";
 import { Calendar, Clock, DollarSign, Loader2, Home } from "lucide-react";
-import { sendBookingConfirmationEmail } from "@/lib/emails";
+import { TimeSlot } from "@/types/booking";
+import { format } from "date-fns";
 
 const BookingPage = () => {
   const { slug } = useParams();
@@ -24,12 +26,16 @@ const BookingPage = () => {
   const [pendingServiceId, setPendingServiceId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   
+  // Availability state
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    date: "",
-    time: "",
     notes: "",
   });
 
@@ -41,7 +47,6 @@ const BookingPage = () => {
     checkAuthAndPrefill();
   }, []);
 
-  // Auto-select service and show form when services are loaded and we have a pending service ID
   useEffect(() => {
     if (services.length > 0 && pendingServiceId) {
       const service = services.find(s => s.id === pendingServiceId);
@@ -53,12 +58,18 @@ const BookingPage = () => {
     }
   }, [services, pendingServiceId]);
 
+  // Fetch available slots when date changes
+  useEffect(() => {
+    if (selectedDate && selectedService && profile) {
+      fetchAvailableSlots();
+    }
+  }, [selectedDate, selectedService, profile]);
+
   const checkAuthAndPrefill = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       setCurrentUser(session.user);
       
-      // Fetch user profile
       const { data: profileData } = await supabase
         .from('profiles')
         .select('full_name, role')
@@ -67,21 +78,18 @@ const BookingPage = () => {
       
       setUserRole(profileData?.role || null);
       
-      // Pre-fill form data
       setFormData(prev => ({
         ...prev,
         name: profileData?.full_name || "",
         email: session.user.email || "",
       }));
       
-      // Check if user was redirected back from auth
       const urlParams = new URLSearchParams(window.location.search);
       const returnedFromAuth = urlParams.get('returned');
       const serviceId = urlParams.get('serviceId');
       
       if (returnedFromAuth === 'true' && serviceId) {
         setPendingServiceId(serviceId);
-        // Clean up URL
         window.history.replaceState({}, '', window.location.pathname);
       }
     }
@@ -125,53 +133,84 @@ const BookingPage = () => {
     setLoading(false);
   };
 
+  const fetchAvailableSlots = async () => {
+    if (!selectedDate || !selectedService || !profile) return;
+    
+    setLoadingSlots(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-available-slots', {
+        body: {
+          creatorSlug: slug,
+          serviceId: selectedService.id,
+          date: format(selectedDate, 'yyyy-MM-dd'),
+        },
+      });
+
+      if (error) throw error;
+      
+      setAvailableSlots(data.availableSlots || []);
+      setSelectedSlot(null);
+    } catch (error: any) {
+      console.error('Error fetching slots:', error);
+      toast.error(error.message || "Failed to load available time slots");
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedService || !formData.name || !formData.email || !formData.date || !formData.time) {
-      toast.error("Please fill in all required fields");
+    if (!selectedService || !formData.name || !formData.email || !selectedDate || !selectedSlot) {
+      toast.error("Please fill in all required fields and select a time slot");
       return;
     }
 
     setSubmitting(true);
 
-    const bookingDateTime = new Date(`${formData.date}T${formData.time}`);
-    
-    const { error } = await supabase.from('bookings').insert({
-      service_id: selectedService.id,
-      creator_id: profile.id,
-      client_name: formData.name,
-      client_email: formData.email,
-      client_phone: formData.phone || null,
-      booking_date: bookingDateTime.toISOString(),
-      notes: formData.notes || null,
-    });
+    try {
+      // Combine date and time into ISO string
+      const [hours, minutes] = selectedSlot.start.split(':');
+      const bookingDateTime = new Date(selectedDate);
+      bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-    if (error) {
-      toast.error("Failed to create booking");
-      console.error(error);
-    } else {
-      // Send email notification to client
-      await sendBookingConfirmationEmail(
-        formData.email,
-        formData.name,
-        selectedService.title,
-        bookingDateTime.toLocaleString(),
-        'pending'
-      );
-      
-      toast.success("Booking request sent! You'll hear back soon.");
-      setFormData({ name: "", email: "", phone: "", date: "", time: "", notes: "" });
-      setSelectedService(null);
-      setBookingFlowState('choice'); // Reset flow state
+      // Call create-checkout-session edge function
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: {
+          serviceId: selectedService.id,
+          creatorSlug: slug,
+          bookingStartDatetime: bookingDateTime.toISOString(),
+          clientName: formData.name,
+          clientEmail: formData.email,
+          clientPhone: formData.phone || null,
+          notes: formData.notes || null,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.checkoutUrl) {
+        // Redirect to Stripe Checkout
+        window.open(data.checkoutUrl, '_blank');
+        toast.success("Redirecting to payment...");
+      } else {
+        throw new Error("No checkout URL received");
+      }
+    } catch (error: any) {
+      console.error('Booking error:', error);
+      toast.error(error.message || "Failed to create booking");
+    } finally {
+      setSubmitting(false);
     }
-    
-    setSubmitting(false);
   };
 
   const handleServiceSelect = (service: any) => {
     setSelectedService(service);
-    setBookingFlowState('choice'); // Reset to choice when selecting a service
+    setSelectedDate(undefined);
+    setAvailableSlots([]);
+    setSelectedSlot(null);
+    setBookingFlowState('choice');
   };
 
   if (loading) {
@@ -186,7 +225,6 @@ const BookingPage = () => {
 
   return (
     <div className={`${themeClass} min-h-screen bg-background text-foreground flex flex-col items-center py-12 animate-fade-in`}>
-      {/* Dashboard Button */}
       {currentUser && (
         <div className="w-full max-w-6xl mx-auto px-4 mb-6">
           <Button
@@ -201,9 +239,8 @@ const BookingPage = () => {
         </div>
       )}
       
-      {/* Block 1: Banner and Profile Info */}
+      {/* Banner and Profile Info */}
       <div className="w-full max-w-4xl mx-auto px-4 mb-12">
-        {/* Banner Section */}
         {profile.banner_url && (
           <div className="mb-8">
             <div className="relative h-48 md:h-64 rounded-xl overflow-hidden shadow-xl">
@@ -216,7 +253,6 @@ const BookingPage = () => {
           </div>
         )}
 
-        {/* Profile Info Card */}
         <Card className="max-w-xl mx-auto shadow-lg hover:shadow-xl transition-shadow animate-fade-in">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -242,7 +278,7 @@ const BookingPage = () => {
         </Card>
       </div>
 
-      {/* Block 2: Services and Booking Flow */}
+      {/* Services and Booking Flow */}
       <div className="w-full max-w-6xl mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-8">
           {/* Services Column */}
@@ -321,50 +357,87 @@ const BookingPage = () => {
               <Card className="animate-scale-in shadow-lg">
                 <CardHeader>
                   <CardTitle>Book {selectedService.title}</CardTitle>
-                  <CardDescription>Fill in your details to request a booking</CardDescription>
+                  <CardDescription>Fill in your details and select a time slot</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Name *</Label>
-                        <Input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Client Info */}
+                    <div className="space-y-4">
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Name *</Label>
+                          <Input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Email *</Label>
+                          <Input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Email *</Label>
-                        <Input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+                        <Label>Phone</Label>
+                        <Input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
                       </div>
                     </div>
+
+                    {/* Date Selection */}
                     <div className="space-y-2">
-                      <Label>Phone</Label>
-                      <Input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+                      <Label>Select Date *</Label>
+                      <CalendarComponent
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        className="rounded-md border"
+                      />
                     </div>
-                    <div className="grid md:grid-cols-2 gap-4">
+
+                    {/* Time Slot Selection */}
+                    {selectedDate && (
                       <div className="space-y-2">
-                        <Label>Preferred Date *</Label>
-                        <Input type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} required />
+                        <Label>Select Time Slot *</Label>
+                        {loadingSlots ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                          </div>
+                        ) : availableSlots.length === 0 ? (
+                          <p className="text-sm text-muted-foreground py-4">No available slots for this date</p>
+                        ) : (
+                          <div className="grid grid-cols-3 gap-2">
+                            {availableSlots.map((slot, index) => (
+                              <Button
+                                key={index}
+                                type="button"
+                                variant={selectedSlot?.start === slot.start ? "default" : "outline"}
+                                onClick={() => setSelectedSlot(slot)}
+                                className="w-full"
+                              >
+                                {slot.start}
+                              </Button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="space-y-2">
-                        <Label>Preferred Time *</Label>
-                        <Input type="time" value={formData.time} onChange={(e) => setFormData({...formData, time: e.target.value})} required />
-                      </div>
-                    </div>
+                    )}
+
                     <div className="space-y-2">
                       <Label>Additional Notes</Label>
                       <Textarea value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} rows={3} />
                     </div>
                     
-                    {/* Payment/Confirmation Section */}
+                    {/* Payment Info */}
                     <div className="pt-4 border-t space-y-2">
-                      <h4 className="font-medium text-sm">Payment/Confirmation</h4>
+                      <h4 className="font-medium text-sm">Payment Information</h4>
                       <p className="text-sm text-muted-foreground">
-                        By clicking "Request Booking", you agree to pay the service fee of ${selectedService.price.toFixed(2)}.
+                        Total amount: ${selectedService.price.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        You'll be redirected to Stripe to complete your payment securely.
                       </p>
                     </div>
                     
-                    <Button type="submit" className="w-full" disabled={submitting}>
+                    <Button type="submit" className="w-full" disabled={submitting || !selectedSlot}>
                       {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Request Booking
+                      Proceed to Payment
                     </Button>
                   </form>
                 </CardContent>
