@@ -24,6 +24,7 @@ serve(async (req) => {
       clientEmail,
       clientPhone,
       notes,
+      isGuest,
     } = await req.json();
 
     if (!serviceId || !creatorSlug || !bookingStartDatetime || !clientName || !clientEmail) {
@@ -142,6 +143,7 @@ serve(async (req) => {
         payment_status: "pending",
         price_at_booking: service.price,
         currency: "usd",
+        is_guest: isGuest || false,
       })
       .select()
       .single();

@@ -14,7 +14,9 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"creator" | "client">("creator");
+  const [role, setRole] = useState<"business" | "client">("business");
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const navigate = useNavigate();
   
   // Check if user came from booking page
@@ -34,6 +36,8 @@ const Auth = () => {
     // Check if user is already logged in
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
+        setUser(session.user);
+        
         // If from booking, redirect back to the booking page
         if (fromBooking && returnTo && serviceId) {
           navigate(`/book/${returnTo}?returned=true&serviceId=${serviceId}`);
@@ -43,14 +47,16 @@ const Auth = () => {
           return;
         }
         
-        const role = await checkUserRole(session.user.id);
-        redirectBasedOnRole(role);
+        const userRole = await checkUserRole(session.user.id);
+        redirectBasedOnRole(userRole);
       }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
+        setUser(session.user);
+        
         // Defer role check to avoid blocking auth state change
         setTimeout(async () => {
           // If from booking, redirect back to the booking page
@@ -62,8 +68,8 @@ const Auth = () => {
             return;
           }
           
-          const role = await checkUserRole(session.user.id);
-          redirectBasedOnRole(role);
+          const userRole = await checkUserRole(session.user.id);
+          redirectBasedOnRole(userRole);
         }, 0);
       }
     });
@@ -71,27 +77,51 @@ const Auth = () => {
     return () => subscription.unsubscribe();
   }, [navigate, fromBooking]);
 
-  const checkUserRole = async (userId: string): Promise<string> => {
+  const checkUserRole = async (userId: string): Promise<string | null> => {
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
-        return "client"; // Default to client if no profile exists
+        return null; // No role yet
       }
 
-      return data.role || "creator";
+      return data.role;
     } catch (error) {
       console.error("Error checking user role:", error);
-      return "client";
+      return null;
     }
   };
 
-  const redirectBasedOnRole = (role: string) => {
-    if (role === "creator") {
+  const handleRoleSelection = async (selectedRole: "business" | "client") => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ role: selectedRole })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      toast.success("Role selected successfully!");
+      redirectBasedOnRole(selectedRole);
+    } catch (error: any) {
+      console.error("Error setting role:", error);
+      toast.error("Failed to set role. Please try again.");
+    }
+  };
+
+  const redirectBasedOnRole = (role: string | null) => {
+    if (!role) {
+      setShowRoleSelection(true);
+      return;
+    }
+    
+    if (role === "business") {
       navigate("/dashboard");
     } else {
       navigate("/client-dashboard");
@@ -170,6 +200,48 @@ const Auth = () => {
     }
   };
 
+  // Role selection modal for existing users without a role
+  if (showRoleSelection && user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4 animate-fade-in">
+        <Card className="w-full max-w-md shadow-xl animate-scale-in">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
+              Welcome to BrandBook!
+            </CardTitle>
+            <CardDescription className="text-center">
+              Are you a Service Provider or a Client?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => handleRoleSelection("business")}
+                className="w-full p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:bg-primary/5"
+              >
+                <div className="font-bold text-lg mb-2">Service Provider</div>
+                <div className="text-sm text-muted-foreground">
+                  I want to offer and manage my services
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRoleSelection("client")}
+                className="w-full p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:bg-primary/5"
+              >
+                <div className="font-bold text-lg mb-2">Client</div>
+                <div className="text-sm text-muted-foreground">
+                  I'm looking to book services
+                </div>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4 animate-fade-in">
       <Card className="w-full max-w-md shadow-xl animate-scale-in">
@@ -204,9 +276,9 @@ const Auth = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
-                      onClick={() => setRole("creator")}
+                      onClick={() => setRole("business")}
                       className={`p-4 border rounded-lg text-left transition-all ${
-                        role === "creator"
+                        role === "business"
                           ? "border-primary bg-primary/5 shadow-sm"
                           : "border-border hover:border-primary/50"
                       }`}

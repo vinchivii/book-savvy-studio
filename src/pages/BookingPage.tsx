@@ -182,10 +182,19 @@ const BookingPage = () => {
     setSubmitting(true);
 
     try {
+      // Check if business user is trying to book
+      if (userRole === "business") {
+        toast.error("Business accounts cannot make bookings. Please switch to Client role in Settings.");
+        return;
+      }
+
       // Combine date and time into ISO string
       const [hours, minutes] = selectedSlot.start.split(':');
       const bookingDateTime = new Date(selectedDate);
       bookingDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+      // Determine if this is a guest booking
+      const isGuest = !currentUser;
 
       // Call create-checkout-session edge function
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
@@ -197,6 +206,7 @@ const BookingPage = () => {
           clientEmail: formData.email,
           clientPhone: formData.phone || null,
           notes: formData.notes || null,
+          isGuest: isGuest,
         },
       });
 
@@ -414,9 +424,23 @@ const BookingPage = () => {
               <Card className="animate-scale-in shadow-lg">
                 <CardHeader>
                   <CardTitle>Book {selectedService.title}</CardTitle>
-                  <CardDescription>Fill in your details and select a time slot</CardDescription>
+                  <CardDescription>
+                    {userRole === "business" 
+                      ? "⚠️ Business accounts cannot make bookings. Switch to Client role in Settings to book services."
+                      : "Fill in your details and select a time slot"}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {userRole === "business" ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground mb-4">
+                        You are currently logged in as a Business account.
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Go to Settings → Account Role to switch to Client mode if you want to book services.
+                      </p>
+                    </div>
+                  ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Client Info */}
                     <div className="space-y-4">
@@ -497,6 +521,7 @@ const BookingPage = () => {
                       Proceed to Payment
                     </Button>
                   </form>
+                  )}
                 </CardContent>
               </Card>
             )}

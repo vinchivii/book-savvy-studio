@@ -65,6 +65,7 @@ export type Database = {
           creator_id: string
           currency: string
           id: string
+          is_guest: boolean
           notes: string | null
           payment_intent_id: string | null
           payment_status: string
@@ -84,6 +85,7 @@ export type Database = {
           creator_id: string
           currency?: string
           id?: string
+          is_guest?: boolean
           notes?: string | null
           payment_intent_id?: string | null
           payment_status?: string
@@ -103,6 +105,7 @@ export type Database = {
           creator_id?: string
           currency?: string
           id?: string
+          is_guest?: boolean
           notes?: string | null
           payment_intent_id?: string | null
           payment_status?: string

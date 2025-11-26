@@ -43,13 +43,20 @@ const Dashboard = () => {
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching profile:", error);
         toast.error("Failed to load profile");
       } else {
         setProfile(profileData);
+        
+        // Check if user has business role
+        if (profileData?.role !== 'business') {
+          toast.error("Access denied. Please switch to Business role in Settings.");
+          navigate("/client-dashboard");
+          return;
+        }
       }
 
       setLoading(false);
