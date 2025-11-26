@@ -18,6 +18,7 @@ const BookingPage = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [services, setServices] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [selectedService, setSelectedService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -130,6 +131,17 @@ const BookingPage = () => {
       .eq('active', true);
 
     setServices(servicesData || []);
+
+    // Fetch public reviews
+    const { data: reviewsData } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('creator_id', profileData.id)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    setReviews(reviewsData || []);
     setLoading(false);
   };
 
