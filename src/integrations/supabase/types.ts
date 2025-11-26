@@ -130,6 +130,91 @@ export type Database = {
           },
         ]
       }
+      clients: {
+        Row: {
+          created_at: string | null
+          creator_id: string
+          email: string
+          first_booking_date: string
+          id: string
+          last_booking_date: string
+          name: string
+          notes: string | null
+          phone: string | null
+          tags: string[] | null
+          total_bookings: number | null
+          total_spent: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          creator_id: string
+          email: string
+          first_booking_date?: string
+          id?: string
+          last_booking_date?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          tags?: string[] | null
+          total_bookings?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          creator_id?: string
+          email?: string
+          first_booking_date?: string
+          id?: string
+          last_booking_date?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          tags?: string[] | null
+          total_bookings?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications_sent: {
+        Row: {
+          booking_id: string
+          id: string
+          notification_type: string
+          sent_at: string | null
+        }
+        Insert: {
+          booking_id: string
+          id?: string
+          notification_type: string
+          sent_at?: string | null
+        }
+        Update: {
+          booking_id?: string
+          id?: string
+          notification_type?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_sent_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -171,6 +256,54 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          booking_id: string
+          client_name: string
+          comment: string | null
+          created_at: string | null
+          creator_id: string
+          id: string
+          is_public: boolean | null
+          rating: number
+        }
+        Insert: {
+          booking_id: string
+          client_name: string
+          comment?: string | null
+          created_at?: string | null
+          creator_id: string
+          id?: string
+          is_public?: boolean | null
+          rating: number
+        }
+        Update: {
+          booking_id?: string
+          client_name?: string
+          comment?: string | null
+          created_at?: string | null
+          creator_id?: string
+          id?: string
+          is_public?: boolean | null
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {

@@ -15,6 +15,8 @@ import ClientsTab from "@/components/dashboard/ClientsTab";
 import ProfileTab from "@/components/dashboard/ProfileTab";
 import { AvailabilityTab } from "@/components/dashboard/AvailabilityTab";
 import { TimeOffTab } from "@/components/dashboard/TimeOffTab";
+import BookingsTab from "@/components/dashboard/BookingsTab";
+import AnalyticsTab from "@/components/dashboard/AnalyticsTab";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -231,26 +233,34 @@ const Dashboard = () => {
         )}
         
         <Tabs defaultValue="services" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8">
             <TabsTrigger value="services">
               <Briefcase className="mr-2 h-4 w-4" />
               {!isMobile && "Services"}
             </TabsTrigger>
+            <TabsTrigger value="schedule">
+              <Calendar className="mr-2 h-4 w-4" />
+              {!isMobile && "Bookings"}
+            </TabsTrigger>
             <TabsTrigger value="bookings">
               <Calendar className="mr-2 h-4 w-4" />
-              {!isMobile && "Schedule"}
-            </TabsTrigger>
-            <TabsTrigger value="availability">
-              <Clock className="mr-2 h-4 w-4" />
-              {!isMobile && "Availability"}
-            </TabsTrigger>
-            <TabsTrigger value="timeoff">
-              <CalendarClock className="mr-2 h-4 w-4" />
-              {!isMobile && "Time Off"}
+              {!isMobile && "Calendar"}
             </TabsTrigger>
             <TabsTrigger value="clients">
               <Users className="mr-2 h-4 w-4" />
               {!isMobile && "Clients"}
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <Briefcase className="mr-2 h-4 w-4" />
+              {!isMobile && "Analytics"}
+            </TabsTrigger>
+            <TabsTrigger value="availability">
+              <Clock className="mr-2 h-4 w-4" />
+              {!isMobile && "Hours"}
+            </TabsTrigger>
+            <TabsTrigger value="timeoff">
+              <CalendarClock className="mr-2 h-4 w-4" />
+              {!isMobile && "Time Off"}
             </TabsTrigger>
             <TabsTrigger value="profile">
               <UserCircle className="mr-2 h-4 w-4" />
@@ -262,8 +272,20 @@ const Dashboard = () => {
             <ServicesTab userId={user?.id || ""} />
           </TabsContent>
 
+          <TabsContent value="schedule">
+            <BookingsTab userId={user?.id || ""} />
+          </TabsContent>
+
           <TabsContent value="bookings">
             <CalendarTab userId={user?.id || ""} />
+          </TabsContent>
+
+          <TabsContent value="clients">
+            <ClientsTab userId={user?.id || ""} />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsTab userId={user?.id || ""} />
           </TabsContent>
 
           <TabsContent value="availability">
@@ -272,10 +294,6 @@ const Dashboard = () => {
 
           <TabsContent value="timeoff">
             <TimeOffTab userId={user?.id || ""} />
-          </TabsContent>
-
-          <TabsContent value="clients">
-            <ClientsTab userId={user?.id || ""} />
           </TabsContent>
 
           <TabsContent value="profile">
