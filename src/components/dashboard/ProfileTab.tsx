@@ -34,6 +34,7 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
     slug: "",
     banner_url: "",
     background_style: "",
+    role: "",
   });
 
   useEffect(() => {
@@ -59,6 +60,7 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
           slug: data.slug || "",
           banner_url: data.banner_url || "",
           background_style: data.background_style || "",
+          role: data.role || "client",
         });
       }
     } catch (error) {
@@ -89,6 +91,7 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
           avatar_url: formData.avatar_url.trim() || null,
           banner_url: formData.banner_url.trim() || null,
           background_style: formData.background_style.trim() || null,
+          role: formData.role,
         })
         .eq("id", userId);
 
@@ -101,6 +104,18 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const canSwitchToBusiness = () => {
+    return formData.business_name.trim() && formData.slug.trim() && formData.bio.trim();
+  };
+
+  const handleRoleChange = (newRole: string) => {
+    if (newRole === "business" && !canSwitchToBusiness()) {
+      toast.error("Please complete your business profile (Business Name, Booking URL, and Bio) before switching to Business role");
+      return;
+    }
+    setFormData(prev => ({ ...prev, role: newRole }));
   };
 
   const handleChange = (field: string, value: string) => {
@@ -430,6 +445,37 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Role Switching Section */}
+          <div className="space-y-4 pt-6 border-t">
+            <Label htmlFor="role">Account Role</Label>
+            
+            <Select 
+              value={formData.role} 
+              onValueChange={handleRoleChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select your role" />
+              </SelectTrigger>
+              <SelectContent className="z-50 bg-popover">
+                <SelectItem value="business">Service Provider (Business)</SelectItem>
+                <SelectItem value="client">Client</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <p className="text-sm text-muted-foreground">
+              {formData.role === "business" 
+                ? "You can offer and manage services" 
+                : "You can book and manage appointments"}
+            </p>
+            
+            {formData.role === "client" && !canSwitchToBusiness() && (
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-200">
+                <p className="font-medium mb-1">⚠️ Complete your profile to switch to Business</p>
+                <p>Fill in Business Name, Booking URL, and Bio to enable Business mode.</p>
+              </div>
+            )}
           </div>
 
           <Button type="submit" disabled={saving} className="w-full">

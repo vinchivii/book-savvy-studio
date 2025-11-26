@@ -34,9 +34,14 @@ const ClientDashboard = () => {
 
   useEffect(() => {
     checkAuth();
-    fetchBookings();
-    fetchUserProfile();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchBookings();
+      fetchUserProfile();
+    }
+  }, [user]);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -59,7 +64,14 @@ const ClientDashboard = () => {
         .maybeSingle();
 
       if (error) throw error;
+      
       setUserProfile(data);
+      
+      // Check if user has client role
+      if (data?.role === "business") {
+        toast.info("You're viewing as Business. Switch to Client role in Settings to see this page.");
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       console.error("Error fetching profile:", error);
     }
@@ -67,21 +79,29 @@ const ClientDashboard = () => {
 
   const handleSwitchToBusinessDashboard = async () => {
     try {
-      // Check if user already has creator role
-      if (userProfile?.role === "creator") {
+      // Check if user's business profile is complete
+      const profileComplete = userProfile?.business_name && userProfile?.slug && userProfile?.bio;
+      
+      if (!profileComplete) {
+        toast.error("Please complete your business profile (Business Name, Booking URL, and Bio) before switching to Business role.");
+        return;
+      }
+
+      // Check if user already has business role
+      if (userProfile?.role === "business") {
         navigate("/dashboard");
         return;
       }
 
-      // Update user role to creator
+      // Update user role to business
       const { error } = await supabase
         .from("profiles")
-        .update({ role: "creator" })
+        .update({ role: "business" })
         .eq("id", user.id);
 
       if (error) throw error;
 
-      toast.success("Switched to Business account! Please complete your profile setup.");
+      toast.success("Switched to Business account!");
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Error switching to business:", error);
