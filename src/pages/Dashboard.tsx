@@ -5,7 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, ArrowLeftRight, LogOut } from "lucide-react";
+import { Calendar, Clock, CalendarClock, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, ArrowLeftRight, LogOut } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -13,6 +13,8 @@ import ServicesTab from "@/components/dashboard/ServicesTab";
 import CalendarTab from "@/components/dashboard/CalendarTab";
 import ClientsTab from "@/components/dashboard/ClientsTab";
 import ProfileTab from "@/components/dashboard/ProfileTab";
+import { AvailabilityTab } from "@/components/dashboard/AvailabilityTab";
+import { TimeOffTab } from "@/components/dashboard/TimeOffTab";
 
 const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -229,7 +231,7 @@ const Dashboard = () => {
         )}
         
         <Tabs defaultValue="services" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
             <TabsTrigger value="services">
               <Briefcase className="mr-2 h-4 w-4" />
               {!isMobile && "Services"}
@@ -237,6 +239,14 @@ const Dashboard = () => {
             <TabsTrigger value="bookings">
               <Calendar className="mr-2 h-4 w-4" />
               {!isMobile && "Schedule"}
+            </TabsTrigger>
+            <TabsTrigger value="availability">
+              <Clock className="mr-2 h-4 w-4" />
+              {!isMobile && "Availability"}
+            </TabsTrigger>
+            <TabsTrigger value="timeoff">
+              <CalendarClock className="mr-2 h-4 w-4" />
+              {!isMobile && "Time Off"}
             </TabsTrigger>
             <TabsTrigger value="clients">
               <Users className="mr-2 h-4 w-4" />
@@ -254,6 +264,14 @@ const Dashboard = () => {
 
           <TabsContent value="bookings">
             <CalendarTab userId={user?.id || ""} />
+          </TabsContent>
+
+          <TabsContent value="availability">
+            <AvailabilityTab userId={user?.id || ""} />
+          </TabsContent>
+
+          <TabsContent value="timeoff">
+            <TimeOffTab userId={user?.id || ""} />
           </TabsContent>
 
           <TabsContent value="clients">

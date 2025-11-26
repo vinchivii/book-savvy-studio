@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      availability: {
+        Row: {
+          created_at: string
+          creator_id: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -22,11 +63,16 @@ export type Database = {
           client_phone: string | null
           created_at: string | null
           creator_id: string
+          currency: string
           id: string
           notes: string | null
           payment_intent_id: string | null
+          payment_status: string
+          price_at_booking: number
           service_id: string
           status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -36,11 +82,16 @@ export type Database = {
           client_phone?: string | null
           created_at?: string | null
           creator_id: string
+          currency?: string
           id?: string
           notes?: string | null
           payment_intent_id?: string | null
+          payment_status?: string
+          price_at_booking?: number
           service_id: string
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -50,11 +101,16 @@ export type Database = {
           client_phone?: string | null
           created_at?: string | null
           creator_id?: string
+          currency?: string
           id?: string
           notes?: string | null
           payment_intent_id?: string | null
+          payment_status?: string
+          price_at_booking?: number
           service_id?: string
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -156,6 +212,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "services_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_off: {
+        Row: {
+          created_at: string
+          creator_id: string
+          end_datetime: string
+          id: string
+          reason: string | null
+          start_datetime: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          end_datetime: string
+          id?: string
+          reason?: string | null
+          start_datetime: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          end_datetime?: string
+          id?: string
+          reason?: string | null
+          start_datetime?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_off_creator_id_fkey"
             columns: ["creator_id"]
             isOneToOne: false
             referencedRelation: "profiles"
