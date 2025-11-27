@@ -3,8 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { format, isSameDay } from "date-fns";
 import { Clock, Mail, Phone, CheckCircle, XCircle } from "lucide-react";
@@ -25,6 +23,35 @@ interface Booking {
     duration: number;
   };
 }
+
+const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+const CalendarDay: React.FC<{ 
+  day: number | string; 
+  isHeader?: boolean;
+  hasBooking?: boolean;
+  isToday?: boolean;
+  onClick?: () => void;
+}> = ({ day, isHeader, hasBooking, isToday, onClick }) => {
+  const bgClass = hasBooking 
+    ? "bg-primary text-primary-foreground" 
+    : isToday 
+    ? "bg-accent text-accent-foreground" 
+    : "text-muted-foreground hover:bg-muted";
+
+  return (
+    <div
+      onClick={onClick}
+      className={`col-span-1 row-span-1 flex h-8 w-8 items-center justify-center ${
+        isHeader ? "" : "rounded-xl cursor-pointer transition-colors"
+      } ${bgClass}`}
+    >
+      <span className={`font-medium ${isHeader ? "text-xs" : "text-sm"}`}>
+        {day}
+      </span>
+    </div>
+  );
+};
 
 const CalendarTab = ({ userId }: { userId: string }) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -109,15 +136,57 @@ const CalendarTab = ({ userId }: { userId: string }) => {
     );
   };
 
-  const getDayModifiers = () => {
-    const bookedDates = bookings.map(b => new Date(b.booking_date));
-    return {
-      booked: bookedDates
-    };
+  const renderCalendarDays = () => {
+    const currentDate = selectedDate || new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    const today = new Date();
+    
+    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+    const firstDayOfWeek = firstDayOfMonth.getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    const bookedDatesSet = new Set(
+      bookings
+        .filter(b => {
+          const bookingDate = new Date(b.booking_date);
+          return bookingDate.getMonth() === currentMonth && bookingDate.getFullYear() === currentYear;
+        })
+        .map(b => new Date(b.booking_date).getDate())
+    );
+
+    let days: React.ReactNode[] = [
+      ...dayNames.map((day) => (
+        <CalendarDay key={`header-${day}`} day={day} isHeader />
+      )),
+      ...Array(firstDayOfWeek).fill(null).map((_, i) => (
+        <div key={`empty-start-${i}`} className="col-span-1 row-span-1 h-8 w-8" />
+      )),
+      ...Array(daysInMonth).fill(null).map((_, i) => {
+        const dayNum = i + 1;
+        const dayDate = new Date(currentYear, currentMonth, dayNum);
+        const isToday = isSameDay(dayDate, today);
+        const hasBooking = bookedDatesSet.has(dayNum);
+        
+        return (
+          <CalendarDay 
+            key={`date-${dayNum}`} 
+            day={dayNum}
+            hasBooking={hasBooking}
+            isToday={isToday}
+            onClick={() => setSelectedDate(dayDate)}
+          />
+        );
+      }),
+    ];
+
+    return days;
   };
 
-  const modifiersClassNames = {
-    booked: "relative after:absolute after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-primary"
+  const changeMonth = (offset: number) => {
+    const current = selectedDate || new Date();
+    const newDate = new Date(current.getFullYear(), current.getMonth() + offset, 1);
+    setSelectedDate(newDate);
   };
 
   if (loading) {
@@ -132,17 +201,41 @@ const CalendarTab = ({ userId }: { userId: string }) => {
       </div>
 
       <div className="grid lg:grid-cols-[auto_1fr] gap-6">
-        {/* Calendar */}
-        <Card className="w-fit">
-          <CardContent className="p-6">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              modifiers={getDayModifiers()}
-              modifiersClassNames={modifiersClassNames}
-              className="rounded-md"
-            />
+        {/* Custom Calendar */}
+        <Card className="w-fit border-border hover:border-primary/50 transition-colors">
+          <CardContent className="p-4">
+            <div className="w-[320px] rounded-2xl border border-border/50 p-3 bg-card">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm">
+                    <span className="font-medium">
+                      {(selectedDate || new Date()).toLocaleString("default", { month: "long" })}, {(selectedDate || new Date()).getFullYear()}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => changeMonth(-1)}
+                    className="h-7 w-7 p-0"
+                  >
+                    ←
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => changeMonth(1)}
+                    className="h-7 w-7 p-0"
+                  >
+                    →
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-7 gap-2 px-2">
+                {renderCalendarDays()}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
