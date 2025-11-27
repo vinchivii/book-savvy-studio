@@ -29,24 +29,46 @@ const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const CalendarDay: React.FC<{ 
   day: number | string; 
   isHeader?: boolean;
-  hasBooking?: boolean;
+  bookingCount?: number;
   isToday?: boolean;
+  isSelected?: boolean;
   onClick?: () => void;
-}> = ({ day, isHeader, hasBooking, isToday, onClick }) => {
-  const bgClass = isToday 
-    ? "bg-primary text-primary-foreground" 
-    : "text-muted-foreground hover:bg-muted";
+}> = ({ day, isHeader, bookingCount, isToday, isSelected, onClick }) => {
+  if (isHeader) {
+    return (
+      <div className="col-span-1 row-span-1 flex h-8 w-8 items-center justify-center">
+        <span className="font-medium text-xs text-muted-foreground">{day}</span>
+      </div>
+    );
+  }
+
+  const baseClasses = "col-span-1 row-span-1 flex flex-col items-center justify-center h-10 w-10 rounded-xl cursor-pointer transition-all duration-200";
+  
+  let stateClasses = "";
+  if (isSelected) {
+    stateClasses = "bg-primary text-primary-foreground shadow-md scale-105";
+  } else if (isToday) {
+    stateClasses = "ring-2 ring-primary ring-offset-2 text-foreground font-semibold";
+  } else {
+    stateClasses = "text-foreground hover:bg-muted hover:scale-105";
+  }
 
   return (
     <div
       onClick={onClick}
-      className={`col-span-1 row-span-1 flex h-8 w-8 items-center justify-center ${
-        isHeader ? "" : "rounded-xl cursor-pointer transition-colors"
-      } ${bgClass}`}
+      className={`${baseClasses} ${stateClasses}`}
     >
-      <span className={`font-medium ${isHeader ? "text-xs" : "text-sm"}`}>
-        {day}
-      </span>
+      <span className="text-sm font-medium">{day}</span>
+      {bookingCount && bookingCount > 0 && (
+        <div className="flex items-center justify-center gap-0.5 mt-0.5">
+          <div className={`h-1 w-1 rounded-full ${isSelected ? 'bg-primary-foreground' : 'bg-primary'}`} />
+          {bookingCount > 1 && (
+            <span className={`text-[8px] font-semibold ${isSelected ? 'text-primary-foreground' : 'text-primary'}`}>
+              {bookingCount}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -144,34 +166,39 @@ const CalendarTab = ({ userId }: { userId: string }) => {
     const firstDayOfWeek = firstDayOfMonth.getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-    const bookedDatesSet = new Set(
-      bookings
-        .filter(b => {
-          const bookingDate = new Date(b.booking_date);
-          return bookingDate.getMonth() === currentMonth && bookingDate.getFullYear() === currentYear;
-        })
-        .map(b => new Date(b.booking_date).getDate())
-    );
+    // Count bookings per day for the current month
+    const bookingCountByDay = new Map<number, number>();
+    bookings
+      .filter(b => {
+        const bookingDate = new Date(b.booking_date);
+        return bookingDate.getMonth() === currentMonth && bookingDate.getFullYear() === currentYear;
+      })
+      .forEach(b => {
+        const dayNum = new Date(b.booking_date).getDate();
+        bookingCountByDay.set(dayNum, (bookingCountByDay.get(dayNum) || 0) + 1);
+      });
 
     let days: React.ReactNode[] = [
       ...dayNames.map((day) => (
         <CalendarDay key={`header-${day}`} day={day} isHeader />
       )),
       ...Array(firstDayOfWeek).fill(null).map((_, i) => (
-        <div key={`empty-start-${i}`} className="col-span-1 row-span-1 h-8 w-8" />
+        <div key={`empty-start-${i}`} className="col-span-1 row-span-1 h-10 w-10" />
       )),
       ...Array(daysInMonth).fill(null).map((_, i) => {
         const dayNum = i + 1;
         const dayDate = new Date(currentYear, currentMonth, dayNum);
         const isToday = isSameDay(dayDate, today);
-        const hasBooking = bookedDatesSet.has(dayNum);
+        const isSelected = selectedDate ? isSameDay(dayDate, selectedDate) : false;
+        const bookingCount = bookingCountByDay.get(dayNum) || 0;
         
         return (
           <CalendarDay 
             key={`date-${dayNum}`} 
             day={dayNum}
-            hasBooking={hasBooking}
+            bookingCount={bookingCount}
             isToday={isToday}
+            isSelected={isSelected}
             onClick={() => setSelectedDate(dayDate)}
           />
         );
@@ -202,11 +229,11 @@ const CalendarTab = ({ userId }: { userId: string }) => {
         {/* Custom Calendar */}
         <Card className="w-fit border-border hover:border-primary/50 transition-colors">
           <CardContent className="p-4">
-            <div className="w-[320px] rounded-2xl border border-border/50 p-3 bg-card">
+            <div className="w-[360px] rounded-2xl border border-border/50 p-4 bg-card">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <p className="text-sm">
-                    <span className="font-medium">
+                    <span className="font-semibold">
                       {(selectedDate || new Date()).toLocaleString("default", { month: "long" })}, {(selectedDate || new Date()).getFullYear()}
                     </span>
                   </p>
@@ -216,7 +243,7 @@ const CalendarTab = ({ userId }: { userId: string }) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => changeMonth(-1)}
-                    className="h-7 w-7 p-0"
+                    className="h-8 w-8 p-0 hover:bg-muted"
                   >
                     ←
                   </Button>
@@ -224,14 +251,24 @@ const CalendarTab = ({ userId }: { userId: string }) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => changeMonth(1)}
-                    className="h-7 w-7 p-0"
+                    className="h-8 w-8 p-0 hover:bg-muted"
                   >
                     →
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-7 gap-2 px-2">
+              <div className="grid grid-cols-7 gap-2 place-items-center">
                 {renderCalendarDays()}
+              </div>
+              <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full ring-2 ring-primary" />
+                  <span>Today</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  <span>Has bookings</span>
+                </div>
               </div>
             </div>
           </CardContent>
