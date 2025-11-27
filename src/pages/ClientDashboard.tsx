@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Loader2, LogOut, Calendar, Clock, Settings, User, Mail, Phone, Star, X, Edit } from "lucide-react";
+import { Loader2, Calendar, Clock, Settings, User, Mail, Phone, Star, X, Edit, UserCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { format, isPast, isFuture } from "date-fns";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -216,15 +217,6 @@ const ClientDashboard = () => {
     }
   };
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Failed to logout");
-    } else {
-      toast.success("Logged out successfully");
-      navigate("/");
-    }
-  };
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -338,13 +330,18 @@ const ClientDashboard = () => {
               </DialogContent>
             </Dialog>
             
-            <Button variant="outline" onClick={() => navigate("/settings")}>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
+            <Button 
+              onClick={() => navigate('/settings')} 
+              variant="ghost" 
+              size="icon"
+              className="rounded-full"
+            >
+              <Avatar>
+                <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.full_name} />
+                <AvatarFallback>
+                  <UserCircle className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
             </Button>
           </div>
         </div>

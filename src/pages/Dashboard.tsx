@@ -5,7 +5,8 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, CalendarClock, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, Settings, LogOut, Star } from "lucide-react";
+import { Calendar, Clock, CalendarClock, Users, Briefcase, Link as LinkIcon, UserCircle, ExternalLink, Share2, Copy, Mail, MessageCircle, Settings, Star } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -75,11 +76,6 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast.success("Logged out successfully");
-    navigate("/");
-  };
 
   const getBookingLink = () => `${window.location.origin}/book/${profile?.slug}`;
 
@@ -139,10 +135,6 @@ const Dashboard = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <NotificationBell />
-              <Button onClick={() => navigate('/settings')} variant="outline" size="sm">
-                <Settings className="mr-2 h-4 w-4" />
-                {!isMobile && "Settings"}
-              </Button>
               {profile?.slug && !isMobile && (
                 <>
                   <Button onClick={previewBookingPage} variant="outline" size="sm">
@@ -187,9 +179,18 @@ const Dashboard = () => {
                 </>
               )}
             </div>
-            <Button onClick={handleLogout} variant="destructive" size="sm">
-              <LogOut className="mr-2 h-4 w-4" />
-              {!isMobile && "Logout"}
+            <Button 
+              onClick={() => navigate('/settings')} 
+              variant="ghost" 
+              size="icon"
+              className="rounded-full"
+            >
+              <Avatar>
+                <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name} />
+                <AvatarFallback>
+                  <UserCircle className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
             </Button>
           </div>
         </div>
