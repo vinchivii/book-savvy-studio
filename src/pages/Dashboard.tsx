@@ -252,7 +252,7 @@ const Dashboard = () => {
         )}
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-8">
             <TabsTrigger value="services">
               <Briefcase className="mr-2 h-4 w-4" />
               {!isMobile && "Services"}
@@ -284,10 +284,6 @@ const Dashboard = () => {
             <TabsTrigger value="timeoff">
               <CalendarClock className="mr-2 h-4 w-4" />
               {!isMobile && "Time Off"}
-            </TabsTrigger>
-            <TabsTrigger value="profile">
-              <UserCircle className="mr-2 h-4 w-4" />
-              {!isMobile && "Profile"}
             </TabsTrigger>
           </TabsList>
 
