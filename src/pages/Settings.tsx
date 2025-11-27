@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ArrowLeft, User, Briefcase, Check } from "lucide-react";
+import { Loader2, ArrowLeft, User, Briefcase, Check, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { NotificationBell } from "@/components/NotificationBell";
 
@@ -95,6 +95,12 @@ const Settings = () => {
     } finally {
       setSwitching(false);
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
+    navigate("/");
   };
 
   if (loading) {
@@ -255,6 +261,22 @@ const Settings = () => {
                   </p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Logout Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Actions</CardTitle>
+              <CardDescription>
+                Manage your session
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={handleLogout} variant="destructive" className="w-full">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
             </CardContent>
           </Card>
         </div>
