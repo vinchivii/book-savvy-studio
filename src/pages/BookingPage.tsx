@@ -32,6 +32,7 @@ const BookingPage = () => {
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [weeklyAvailability, setWeeklyAvailability] = useState<Set<number>>(new Set());
   
   const [formData, setFormData] = useState({
     name: "",
@@ -123,6 +124,18 @@ const BookingPage = () => {
     }
 
     setProfile(profileData);
+
+    // Fetch weekly availability
+    const { data: availabilityData } = await supabase
+      .from('availability')
+      .select('day_of_week')
+      .eq('creator_id', profileData.id)
+      .eq('is_active', true);
+
+    if (availabilityData) {
+      const activeDays = new Set(availabilityData.map(a => a.day_of_week));
+      setWeeklyAvailability(activeDays);
+    }
 
     const { data: servicesData } = await supabase
       .from('services')
@@ -467,9 +480,21 @@ const BookingPage = () => {
                         mode="single"
                         selected={selectedDate}
                         onSelect={setSelectedDate}
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        disabled={(date) => {
+                          // Disable past dates
+                          if (date < new Date(new Date().setHours(0, 0, 0, 0))) return true;
+                          
+                          // Disable days without availability
+                          const dayOfWeek = date.getDay();
+                          return !weeklyAvailability.has(dayOfWeek);
+                        }}
                         className="rounded-md border"
                       />
+                      {weeklyAvailability.size === 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          No availability configured yet. Please check back later.
+                        </p>
+                      )}
                     </div>
 
                     {/* Time Slot Selection */}

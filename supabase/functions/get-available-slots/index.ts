@@ -159,8 +159,23 @@ serve(async (req) => {
       }
     }
 
+    // Format slots for the frontend
+    const availableSlots = timeSlots.map(slot => ({
+      start: new Date(slot.start).toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      }),
+      end: new Date(slot.end).toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      }),
+      datetime: slot.start
+    }));
+
     return new Response(
-      JSON.stringify({ date, serviceId, timeSlots }),
+      JSON.stringify({ date, serviceId, availableSlots }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
