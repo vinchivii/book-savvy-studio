@@ -33,10 +33,8 @@ const CalendarDay: React.FC<{
   isToday?: boolean;
   onClick?: () => void;
 }> = ({ day, isHeader, hasBooking, isToday, onClick }) => {
-  const bgClass = hasBooking 
+  const bgClass = isToday 
     ? "bg-primary text-primary-foreground" 
-    : isToday 
-    ? "bg-accent text-accent-foreground" 
     : "text-muted-foreground hover:bg-muted";
 
   return (
