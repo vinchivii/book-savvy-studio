@@ -238,6 +238,63 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Profile Picture - Centered at Top */}
+          <div className="flex flex-col items-center space-y-4 pb-6 border-b">
+            <Label>Profile Picture</Label>
+            
+            <Avatar className="h-32 w-32 ring-4 ring-border">
+              <AvatarImage src={formData.avatar_url} alt={formData.full_name} />
+              <AvatarFallback className="text-3xl">
+                {formData.full_name ? formData.full_name.charAt(0).toUpperCase() : 'U'}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('avatar-upload')?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Image
+                  </>
+                )}
+              </Button>
+              
+              {formData.avatar_url && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={removeAvatar}
+                  disabled={uploading}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            
+            <p className="text-sm text-muted-foreground text-center">
+              Upload an image (max 5MB)
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="full_name">
               Full Name <span className="text-destructive">*</span>
@@ -373,66 +430,6 @@ const ProfileTab = ({ userId }: ProfileTabProps) => {
             <p className="text-sm text-muted-foreground">
               Choose light, dark, or automatic (based on device settings)
             </p>
-          </div>
-
-          <div className="space-y-4">
-            <Label>Profile Picture</Label>
-            
-            <div className="flex items-center gap-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={formData.avatar_url} alt={formData.full_name} />
-                <AvatarFallback className="text-2xl">
-                  {formData.full_name ? formData.full_name.charAt(0).toUpperCase() : 'U'}
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="flex-1 space-y-3">
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('avatar-upload')?.click()}
-                    disabled={uploading}
-                  >
-                    {uploading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload Image
-                      </>
-                    )}
-                  </Button>
-                  
-                  {formData.avatar_url && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={removeAvatar}
-                      disabled={uploading}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                
-                <input
-                  id="avatar-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                
-                <p className="text-sm text-muted-foreground">
-                  Upload an image (max 5MB)
-                </p>
-              </div>
-            </div>
           </div>
 
           <Button type="submit" disabled={saving} className="w-full">
