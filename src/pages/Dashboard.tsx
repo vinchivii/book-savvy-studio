@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("services");
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -183,6 +184,13 @@ const Dashboard = () => {
               onClick={() => navigate('/settings')} 
               variant="ghost" 
               size="icon"
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+            <Button 
+              onClick={() => setActiveTab('profile')} 
+              variant="ghost" 
+              size="icon"
               className="rounded-full"
             >
               <Avatar>
@@ -243,7 +251,7 @@ const Dashboard = () => {
           </div>
         )}
         
-        <Tabs defaultValue="services" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9">
             <TabsTrigger value="services">
               <Briefcase className="mr-2 h-4 w-4" />

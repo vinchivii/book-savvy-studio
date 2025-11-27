@@ -334,6 +334,13 @@ const ClientDashboard = () => {
               onClick={() => navigate('/settings')} 
               variant="ghost" 
               size="icon"
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+            <Button 
+              onClick={() => setEditModalOpen(true)} 
+              variant="ghost" 
+              size="icon"
               className="rounded-full"
             >
               <Avatar>
